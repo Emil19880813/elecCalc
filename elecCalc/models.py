@@ -89,8 +89,21 @@ current_choices = (
     (19, 4000),
 )
 
+
+class Cable(models.Model):
+    material = models.CharField(choices=cable_type_choices, default=1)  # materiał Cu Al
+    insulation = models.CharField(choices=cable_insulation_choices, default=0)  # izolacja
+    cable_cross_section = models.IntegerField(choices=cross_section_choices, default=1)  # przekrój
+    capacity = models.DecimalField(max_digits=4, decimal_places=1)  # obciążalnosc długotrwała
+    cable_routing = models.Charfield(choices=routing_choices, default=1)  # sposób ułożenia
+
+
+    def __str__(self):
+        return f"{self.material}/{self.insulation}/{self.cable_cross_section}"
+
+
 class GroupReceiver(models.Model):
-    group = models.CharField(choices=group_receiver_choices, default="LI")
+    name = models.CharField(choices=group_receiver_choices, default="LI")
 
 
 class Receiver(models.Model):
@@ -99,30 +112,17 @@ class Receiver(models.Model):
     power = models.DecimalField(max_digits=6, decimal_places=2)
     power_factor = models.DecimalField(max_digits=3, decimal_places=2, default=0.93)
     group = models.ForeignKey(GroupReceiver, on_delete=models.CASCADE, related_name="receivers")
+    cable = models.ForeignKey(Cable, on_delete=models.CASCADE, related_name="receivers")
 
     def __str__(self):
         return f"{self.name} - {self.power}kW, {self.voltage}kV"
 
-class Cable(models.Model):
-    type = models.Charfield(max_length=12, blank=True) #typ kabla
-    material = models.CharField(choices=cable_type_choices, default=1) #materuał Cu Al
-    insulation = models.CharField(choices=cable_insulation_choices, default=0) #izolacja
-    cable_cross_section = models.IntegerField(choices=cross_section_choices, default=1) #przekrój
-    capacity = models.DecimalField(max_digits=4, decimal_places=1) #obciążalnosc długotrwała
 
-    def __str__(self):
-        return f"{self.material}/{self.insulation}/{self.cable_cross_section}"
-
-class LayingCable(models.Model):
-    cable_routing = models.Charfield(choices=routing_choices, default=1) #sposób ułożenia
-    cable = models.ForeignKey(Cable, on_delete=models.CASCADE, related_name="cable_routing")
-
-    def __str__(self):
-        return f"{self.cable.material}/{self.cable.insulation}/{self.cable.cable_cross_section} - Idd={self.capacity}A"
-
-class ElectricalProtection(models.Model):
-    type = models.CharField(choices=overcurrent_type_choices, default=0)  # materuał Cu Al
+class ProtectionDevices(models.Model):
+    type = models.CharField(choices=overcurrent_type_choices, default=0)  # typ zabezpieczenia
     current = models.CharField(choices=current_choices, default=0)  # amperaż zabezpieczenia
+    receivers = models.ForeignKey(Receiver, on_delete=models.CASCADE, related_name="device")
 
     def __str__(self):
         return f"{self.type}/{self.current}A"
+

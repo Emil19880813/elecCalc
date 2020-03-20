@@ -16,7 +16,7 @@ voltage_choices = (
     (2, 15),
 )
 
-cross_section_choices = (
+cable_cross_section_choices = (
     (0, 1.5),
     (1, 2.5),
     (2, 4),
@@ -93,7 +93,7 @@ current_choices = (
 class Cable(models.Model):
     material = models.CharField(choices=cable_type_choices, default=1)  # materiał Cu Al
     insulation = models.CharField(choices=cable_insulation_choices, default=0)  # izolacja
-    cable_cross_section = models.IntegerField(choices=cross_section_choices, default=1)  # przekrój
+    cable_cross_section = models.IntegerField(choices=cable_cross_section_choices, default=1)  # przekrój
     capacity = models.DecimalField(max_digits=4, decimal_places=1)  # obciążalnosc długotrwała
     cable_routing = models.Charfield(choices=routing_choices, default=1)  # sposób ułożenia
 
@@ -111,7 +111,7 @@ class Receiver(models.Model):
     voltage = models.CharField(choices=voltage_choices, default=1)
     power = models.DecimalField(max_digits=6, decimal_places=2)
     power_factor = models.DecimalField(max_digits=3, decimal_places=2, default=0.93)
-    group = models.ForeignKey(GroupReceiver, on_delete=models.CASCADE, related_name="receivers")
+    group = models.ForeignKey(GroupReceiver, on_delete=models.CASCADE, related_name="receivers", blank=True)
     cable = models.ForeignKey(Cable, on_delete=models.CASCADE, related_name="receivers")
 
     def __str__(self):

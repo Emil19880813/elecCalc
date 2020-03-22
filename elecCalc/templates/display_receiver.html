@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+<h4 class="account-heading">Zestawienie odbiorników:</h4>
+    <div class="col-1"><a href="adres"><img src="{% static "text-plus-icon.png" %}" alt="Trash"></a></div>
+    <div class="row">
+        <div class="col-3">Grupa odbiorników</div>
+        <div class="col-2">Nazwa</div>
+        <div class="col-1">Napięcie [kV]</div>
+        <div class="col-1">Moc [kW]</div>
+        <div class="col-1">Współczynnik mocy</div>
+
+    </div>
+    {% for receiver in receivers %}
+    <div class="row">
+        <div class="col-3">{{ receiver.group }}</div>
+        <div class="col-2">{{ receiver.name }}</div>
+        <div class="col-1">{{ receiver.get_voltage_display }}</div>
+        <div class="col-1">{{ receiver.power }}</div>
+        <div class="col-1">{{ receiver.power_factor}}</div>
+        <div class="col-1"><a href="adres"><img src="{% static "trash.png" %}" alt="Trash" width="30%" height="70%"></a></div>
+        <div class="col-1"><a href="adres"><img src="{% static "edit.png" %}" alt="Edit" width="30%" height="70%"></a></div>
+    </div>
+    {% endfor %}
+{% endblock content %}

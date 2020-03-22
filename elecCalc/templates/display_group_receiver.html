@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+<h4 class="account-heading">Grupa odbiorników:</h4>
+    <div class="col-1"><a href="adres"><img src="{% static "text-plus-icon.png" %}" alt="Trash"></a></div>
+    <div class="row">
+        <div class="col-4">Grupa odbiorników</div>
+    </div>
+    {% for group_receiver in group_receivers %}
+    <div class="row">
+        <div class="col-4">{{ group_receiver.get_name_display}}</div>
+        <div class="col-1"><a href="adres"><img src="{% static "trash.png" %}" alt="Trash" width="30%" height="70%"></a></div>
+        <div class="col-1"><a href="adres"><img src="{% static "edit.png" %}" alt="Edit" width="30%" height="70%"></a></div>
+    </div>
+    {% endfor %}
+{% endblock content %}

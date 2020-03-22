@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<form action="#" method="post">
+    {% csrf_token %}
+    <div class="form-row ">
+        <div class="form-group col-md-12 mb-0">Odbiornik:</div>
+    </div>
+
+    <div class="form-row border border-secondary">
+        <div class="form-group col-md-2 mb-0">
+            {{ receiver_form.group|as_crispy_field}}
+        </div>
+        <div class="form-group col-md-2 mb-0">
+            {{ receiver_form.name|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-2 mb-0">
+            {{ receiver_form.voltage|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-2 mb-0">
+            {{ receiver_form.power|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-2 mb-0">
+            {{ receiver_form.power_factor|as_crispy_field }}
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-12 mb-0">Linia kablowa:</div>
+    </div>
+
+    <div class="form-row border border-secondary">
+        <div class="form-group col-md-1 mb-0">
+            {{ cable_form.material|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-1 mb-0">
+            {{ cable_form.insulation|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-1 mb-0">
+            {{ cable_form.cable_cross_section|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-1 mb-0">
+            {{ cable_form.cable_routing|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-1 mb-0">
+            {{ cable_form.amount|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-1 mb-0">
+            {{ cable_form.core|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-1 mb-0">
+            {{ cable_form.overload_factor|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-1 mb-0">
+            {{ cable_form.layer_factor|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-1 mb-0">
+            {{ cable_form.length|as_crispy_field }}
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-12 mb-0">Zabezpieczenie:</div>
+    </div>
+
+    <div class="form-row border border-secondary">
+        <div class="form-group col-md-1 mb-0">
+            {{ devices_form.type|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-1 mb-0">
+            {{ devices_form.current|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-1 mb-0">
+            {{ devices_form.off_time|as_crispy_field }}
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Oblicz</button>
+
+    <div class="form-row">
+        <div class="form-group col-md-12 mb-0">Wyniki:</div>
+    </div>
+
+    <div class="form-row border border-secondary">
+        <div class="form-group col-md-1 mb-0">
+            {{ results_form.Ib_current|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-1 mb-0">
+            {{ results_form.In_current|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-1 mb-0">
+            {{ results_form.Idd_current|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-1 mb-0">
+            {{ results_form.voltage_drop|as_crispy_field }}
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-12 mb-0">Warunki ochrony przeciążeniowej:</div>
+    </div>
+
+    <div class="form-row border border-secondary">
+        <div class="form-group col-md-2 mb-0">
+            {{ overload_form|crispy }}
+            <button type="submit" class="btn btn-primary">Dodaj do zestawienia</button>
+        </div>
+    </div>
+</form>
+{% endblock content %}
+
+

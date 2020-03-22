@@ -8,6 +8,7 @@ group_receiver_choices = (
     ("ENE", "URZĄDZENIA ENERGOELEKTRONICZNE"),
     ("PRS", "URZĄDZENIA PROSTOWNIKOWE"),
     ("SPA", "URZĄDZENIA SPAWALNICZE"),
+    ("GR", "GRZAŁKA"),
 )
 
 voltage_choices = (
@@ -57,13 +58,11 @@ routing_choices = (
 )
 
 overcurrent_type_choices = (
-    (0, "wyłącznik nadprądowy"),
-    (1, "wyłącznik selektywny"),
-    (2, "wyłącznik kompaktowy"),
-    (3, "wyłącznik powietrzny"),
-    (4, "bezpiecznik"),
-    (5, "bezpiecznik"),
-
+    (0, "B"),
+    (1, "C"),
+    (2, "D"),
+    (3, "gG"),
+    (4, "Compact"),
 )
 
 current_choices = (
@@ -88,41 +87,53 @@ current_choices = (
     (18, 2500),
     (19, 4000),
 )
-
+device_name_choices = (
+    (0, 'wyłącznik nadprądowy'),
+    (1, 'wyłącznik selektywny'),
+    (2, 'wyłącznik kompaktowy'),
+    (3, 'wyłącznik powietrzny'),
+    (4, 'wkładka bezpiecznikowa'),
+)
 
 class Cable(models.Model):
-    material = models.CharField(choices=cable_type_choices, default=1)  # materiał Cu Al
-    insulation = models.CharField(choices=cable_insulation_choices, default=0)  # izolacja
-    cable_cross_section = models.IntegerField(choices=cable_cross_section_choices, default=1)  # przekrój
+    material = models.IntegerField(choices=cable_type_choices, default=1)  # materiał Cu Al
+    insulation = models.IntegerField(choices=cable_insulation_choices, default=0)  # izolacja
+    cable_cross_section = models.DecimalField(max_digits=4, decimal_places=1, choices=cable_cross_section_choices, default=1)  # przekrój
     capacity = models.DecimalField(max_digits=4, decimal_places=1)  # obciążalnosc długotrwała
-    cable_routing = models.Charfield(choices=routing_choices, default=1)  # sposób ułożenia
+    cable_routing = models.IntegerField(choices=routing_choices, default=1)  # sposób ułożenia
 
 
     def __str__(self):
-        return f"{self.material}/{self.insulation}/{self.cable_cross_section}"
+        return f'{self.get_material_display()}/{self.get_insulation_display()}/{self.get_cable_cross_section_display()}/' \
+               f'{self.get_cable_routing_display()}'
 
 
 class GroupReceiver(models.Model):
-    name = models.CharField(choices=group_receiver_choices, default="LI")
+    name = models.CharField(max_length=64, choices=group_receiver_choices, default="LI", unique=True)
 
+    def __str__(self):
+        return f"{self.get_name_display()}"
 
 class Receiver(models.Model):
     name = models.CharField(max_length=32)
-    voltage = models.CharField(choices=voltage_choices, default=1)
+    voltage = models.DecimalField(max_digits=3, decimal_places=2, choices=voltage_choices, default=1)
     power = models.DecimalField(max_digits=6, decimal_places=2)
     power_factor = models.DecimalField(max_digits=3, decimal_places=2, default=0.93)
-    group = models.ForeignKey(GroupReceiver, on_delete=models.CASCADE, related_name="receivers", blank=True)
-    cable = models.ForeignKey(Cable, on_delete=models.CASCADE, related_name="receivers")
+    group = models.ForeignKey(GroupReceiver, on_delete=models.CASCADE, related_name="receivers")
+    cable = models.ForeignKey(Cable, on_delete=models.SET_NULL, null=True, blank=True, related_name="receivers")
 
     def __str__(self):
-        return f"{self.name} - {self.power}kW, {self.voltage}kV"
+        return f"{self.name} - {self.power}kW, {self.get_voltage_display()}kV"
 
 
 class ProtectionDevices(models.Model):
-    type = models.CharField(choices=overcurrent_type_choices, default=0)  # typ zabezpieczenia
-    current = models.CharField(choices=current_choices, default=0)  # amperaż zabezpieczenia
-    receivers = models.ForeignKey(Receiver, on_delete=models.CASCADE, related_name="device")
+    name = models.IntegerField(choices=device_name_choices, default=0)
+    type = models.IntegerField(choices=overcurrent_type_choices, default=0)  # typ zabezpieczenia
+    current = models.SmallIntegerField(choices=current_choices, default=0)  # amperaż zabezpieczenia
+    receivers = models.ForeignKey(Receiver, on_delete=models.SET_NULL, blank=True, null=True, related_name="device")
 
     def __str__(self):
-        return f"{self.type}/{self.current}A"
+        return f"{self.get_type_display()}/{self.get_current_display()}A"
 
+    class Meta:
+        unique_together = ['type', 'current']

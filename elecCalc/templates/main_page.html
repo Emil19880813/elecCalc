@@ -12,6 +12,9 @@
             {{ receiver_form.group|as_crispy_field}}
         </div>
         <div class="form-group col-md-2 mb-0">
+            {{ circuit_form.number|as_crispy_field }}
+        </div>
+        <div class="form-group col-md-2 mb-0">
             {{ receiver_form.name|as_crispy_field }}
         </div>
         <div class="form-group col-md-2 mb-0">
@@ -98,7 +101,6 @@
     <div class="form-row">
         <div class="form-group col-md-12 mb-0">Warunki ochrony przeciążeniowej:</div>
     </div>
-
     <div class="form-row border border-secondary">
         <div class="form-group col-md-2 mb-0">
             {{ overload_form|crispy }}

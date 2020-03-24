@@ -2,7 +2,7 @@
 {% block content %}
 {% load static %}
 <h4 class="account-heading">Zestawienie zabezpieczeń:</h4>
-    <div class="col-1"><a href="adres"><img src="{% static "text-plus-icon.png" %}" alt="Trash"></a></div>
+    <div class="col-1"><a href="{% url 'elecCalc:add-device' %}"><img src="{% static "text-plus-icon.png" %}" alt="Trash"></a></div>
     <div class="row">
         <div class="col-3">Nazwa</div>
         <div class="col-1">Typ</div>
@@ -13,8 +13,8 @@
         <div class="col-3">{{ device.get_name_display }}</div>
         <div class="col-1">{{ device.get_type_display }}</div>
         <div class="col-1">{{ device.get_current_display }}</div>
-        <div class="col-1"><a href="adres"><img src="{% static "trash.png" %}" alt="Trash" width="30%" height="70%"></a></div>
-        <div class="col-1"><a href="adres"><img src="{% static "edit.png" %}" alt="Edit" width="30%" height="70%"></a></div>
+        <div class="col-1"><a href="{% url 'elecCalc:delete-device' device.id %}"><img src="{% static "trash.png" %}" alt="Trash" width="30%" height="70%"></a></div>
+        <div class="col-1"><a href="{% url 'elecCalc:edit-device' device.id %}"><img src="{% static "edit.png" %}" alt="Edit" width="30%" height="70%"></a></div>
     </div>
     {% endfor %}
 {% endblock content %}

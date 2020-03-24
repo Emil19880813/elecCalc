@@ -2,7 +2,7 @@
 {% block content %}
 {% load static %}
 <h4 class="account-heading">Zestawienie kabli:</h4>
-    <div class="col-1"><a href="adres"><img src="{% static "text-plus-icon.png" %}" alt="Trash"></a></div>
+    <div class="col-1"><a href="{% url 'elecCalc:add-cable'%}"><img src="{% static "text-plus-icon.png" %}" alt="Trash"></a></div>
     <div class="row">
         <div class="col-1">Materiał</div>
         <div class="col-1">Izolacja</div>
@@ -17,7 +17,7 @@
         <div class="col-1">{{ cable.get_cable_cross_section_display }}</div>
         <div class="col-1">{{ cable.get_cable_routing_display }}</div>
         <div class="col-1">{{ cable.capacity }}</div>
-        <div class="col-1"><a href="adres"><img src="{% static "trash.png" %}" alt="Trash" width="30%" height="70%"></a></div>
+        <div class="col-1"><a href="{% url 'elecCalc:delete-cable' cable.id %}"><img src="{% static "trash.png" %}" alt="Trash" width="30%" height="70%"></a></div>
         <div class="col-1"><a href="{% url 'elecCalc:edit-cable' cable.id %}"><img src="{% static "edit.png" %}" alt="Edit" width="30%" height="70%"></a></div>
     </div>
     {% endfor %}

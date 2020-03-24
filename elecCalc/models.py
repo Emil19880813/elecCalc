@@ -17,6 +17,13 @@ voltage_choices = (
     (2, 15),
 )
 
+overload_factor_choices = (
+        (0, 1.2),
+        (1, 1.45),
+        (2, 1.6),
+        (3, 1.9),
+)
+
 cable_cross_section_choices = (
     (0, 1.5),
     (1, 2.5),
@@ -101,6 +108,11 @@ class Cable(models.Model):
     cable_cross_section = models.DecimalField(max_digits=4, decimal_places=1, choices=cable_cross_section_choices, default=1)  # przekrój
     capacity = models.DecimalField(max_digits=4, decimal_places=1)  # obciążalnosc długotrwała
     cable_routing = models.IntegerField(choices=routing_choices, default=1)  # sposób ułożenia
+    amount = models.IntegerField(default=1)
+    core = models.IntegerField(default=1)
+    layer_factor = models.DecimalField(max_digits=3, decimal_places=2, default=1)
+    overload_factor = models.DecimalField(max_digits=3, decimal_places=2, choices=overload_factor_choices, default=0)
+    length = models.IntegerField(default=50)
 
 
     def __str__(self):
@@ -114,12 +126,16 @@ class GroupReceiver(models.Model):
     def __str__(self):
         return f"{self.get_name_display()}"
 
+class Circuit(models.Model):
+    number = models.CharField(max_length=8, unique=True)
+
 class Receiver(models.Model):
+    circuit_number = models.OneToOneField(Circuit, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=32)
     voltage = models.DecimalField(max_digits=3, decimal_places=2, choices=voltage_choices, default=1)
     power = models.DecimalField(max_digits=6, decimal_places=2)
     power_factor = models.DecimalField(max_digits=3, decimal_places=2, default=0.93)
-    group = models.ForeignKey(GroupReceiver, on_delete=models.CASCADE, related_name="receivers")
+    group = models.ForeignKey(GroupReceiver, on_delete=models.SET_NULL, null=True, blank=True, related_name="receivers")
     cable = models.ForeignKey(Cable, on_delete=models.SET_NULL, null=True, blank=True, related_name="receivers")
 
     def __str__(self):
@@ -130,10 +146,8 @@ class ProtectionDevices(models.Model):
     name = models.IntegerField(choices=device_name_choices, default=0)
     type = models.IntegerField(choices=overcurrent_type_choices, default=0)  # typ zabezpieczenia
     current = models.SmallIntegerField(choices=current_choices, default=0)  # amperaż zabezpieczenia
+    off_time = models.DecimalField(max_digits=2, decimal_places=1, default=5)
     receivers = models.ForeignKey(Receiver, on_delete=models.SET_NULL, blank=True, null=True, related_name="device")
 
     def __str__(self):
         return f"{self.get_type_display()}/{self.get_current_display()}A"
-
-    class Meta:
-        unique_together = ['type', 'current']

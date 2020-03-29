@@ -4,28 +4,10 @@
 <form action="#" method="post">
     {% csrf_token %}
     <div class="form-row ">
-        <div class="form-group col-md-12 mb-0">Odbiornik:</div>
+        <div class="form-group col-md-6 mb-0">Odbiornik:</div>
     </div>
-
-    <div class="form-row border border-secondary">
-        <div class="form-group col-md-2 mb-0">
-            {{ receiver_form.group|as_crispy_field}}
-        </div>
-        <div class="form-group col-md-2 mb-0">
-            {{ circuit_form.number|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-2 mb-0">
-            {{ receiver_form.name|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-2 mb-0">
-            {{ receiver_form.voltage|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-2 mb-0">
-            {{ receiver_form.power|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-2 mb-0">
-            {{ receiver_form.power_factor|as_crispy_field }}
-        </div>
+    <div class="form-row  border border-secondary">
+        {% crispy receiver_form %}
     </div>
 
     <div class="form-row">
@@ -33,33 +15,7 @@
     </div>
 
     <div class="form-row border border-secondary">
-        <div class="form-group col-md-1 mb-0">
-            {{ cable_form.material|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-1 mb-0">
-            {{ cable_form.insulation|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-1 mb-0">
-            {{ cable_form.cable_cross_section|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-1 mb-0">
-            {{ cable_form.cable_routing|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-1 mb-0">
-            {{ cable_form.amount|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-1 mb-0">
-            {{ cable_form.core|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-1 mb-0">
-            {{ cable_form.overload_factor|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-1 mb-0">
-            {{ cable_form.layer_factor|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-1 mb-0">
-            {{ cable_form.length|as_crispy_field }}
-        </div>
+        {% crispy cable_form %}
     </div>
 
     <div class="form-row">
@@ -67,15 +23,7 @@
     </div>
 
     <div class="form-row border border-secondary">
-        <div class="form-group col-md-1 mb-0">
-            {{ devices_form.type|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-1 mb-0">
-            {{ devices_form.current|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-1 mb-0">
-            {{ devices_form.off_time|as_crispy_field }}
-        </div>
+        {% crispy devices_form %}
     </div>
     <button type="submit" class="btn btn-primary">Oblicz</button>
 

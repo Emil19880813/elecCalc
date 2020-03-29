@@ -7,19 +7,18 @@ from django.shortcuts import render, redirect
 
 # Create your views here.
 from elecCalc.forms import ReceiverForm, CableForm, ProtectionDevicesForm, ResultsForm, OverloadConditionsForm, \
-     GroupReceiverForm, CircuitForm
+     GroupReceiverForm
 from elecCalc.models import Cable, ProtectionDevices, Receiver, GroupReceiver
 
 
 class MainPage(View):
     def get(self, request):
         receiver_form = ReceiverForm()
-        circuit_form = CircuitForm()
         cable_form = CableForm()
         devices_form = ProtectionDevicesForm()
         results_form = ResultsForm()
         overload_form = OverloadConditionsForm()
-        return render(request, 'main_page.html', context={'receiver_form': receiver_form, 'circuit_form': circuit_form,
+        return render(request, 'main_page.html', context={'receiver_form': receiver_form,
                                                           'cable_form': cable_form, 'devices_form': devices_form,
                                                           'results_form': results_form, 'overload_form': overload_form})
 

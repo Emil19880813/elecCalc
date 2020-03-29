@@ -126,11 +126,10 @@ class GroupReceiver(models.Model):
     def __str__(self):
         return f"{self.get_name_display()}"
 
-class Circuit(models.Model):
-    number = models.CharField(max_length=8, unique=True)
+
 
 class Receiver(models.Model):
-    circuit_number = models.OneToOneField(Circuit, on_delete=models.SET_NULL, null=True, blank=True)
+    circuit_number = models.CharField(max_length=12)
     name = models.CharField(max_length=32)
     voltage = models.DecimalField(max_digits=3, decimal_places=2, choices=voltage_choices, default=1)
     power = models.DecimalField(max_digits=6, decimal_places=2)

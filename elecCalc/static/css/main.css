@@ -1,5 +1,11 @@
 body {
   padding-top: 0px;
   background-color: rgba(1, 1, 14, 0.3);
-  font-size: 0.7rem;
+  font-size: .7rem;
+}
+
+.results {
+  font-size: 2rem;
+  background-color: white;
+
 }

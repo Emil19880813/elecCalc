@@ -1,15 +1,6 @@
 from django.db import models
 
 # Create your models here.
-group_receiver_choices = (
-    ("LI", "OŚWIETLENIE"),
-    ("WM", "ZESPOŁY WIELOMASZYNOWE"),
-    ("SI", "SILNIK ELEKTRYCZNY"),
-    ("ENE", "URZĄDZENIA ENERGOELEKTRONICZNE"),
-    ("PRS", "URZĄDZENIA PROSTOWNIKOWE"),
-    ("SPA", "URZĄDZENIA SPAWALNICZE"),
-    ("GR", "GRZAŁKA"),
-)
 
 voltage_choices = (
     (0, 0.23),
@@ -102,17 +93,18 @@ device_name_choices = (
     (4, 'wkładka bezpiecznikowa'),
 )
 
+
+
 class Cable(models.Model):
     material = models.IntegerField(choices=cable_type_choices, default=1)  # materiał Cu Al
     insulation = models.IntegerField(choices=cable_insulation_choices, default=0)  # izolacja
     cable_cross_section = models.DecimalField(max_digits=4, decimal_places=1, choices=cable_cross_section_choices, default=1)  # przekrój
     capacity = models.DecimalField(max_digits=4, decimal_places=1)  # obciążalnosc długotrwała
     cable_routing = models.IntegerField(choices=routing_choices, default=1)  # sposób ułożenia
-    amount = models.IntegerField(default=1)
-    core = models.IntegerField(default=1)
-    layer_factor = models.DecimalField(max_digits=3, decimal_places=2, default=1)
-    overload_factor = models.DecimalField(max_digits=3, decimal_places=2, choices=overload_factor_choices, default=0)
-    length = models.IntegerField(default=50)
+    #amount = models.IntegerField(default=1)
+    #core = models.IntegerField(default=1)
+    #layer_factor = models.DecimalField(max_digits=3, decimal_places=2, default=1)
+    #length = models.IntegerField(default=50)
 
 
     def __str__(self):
@@ -120,21 +112,13 @@ class Cable(models.Model):
                f'{self.get_cable_routing_display()}'
 
 
-class GroupReceiver(models.Model):
-    name = models.CharField(max_length=64, choices=group_receiver_choices, default="LI", unique=True)
-
-    def __str__(self):
-        return f"{self.get_name_display()}"
-
-
 
 class Receiver(models.Model):
-    circuit_number = models.CharField(max_length=12)
+    #circuit_number = models.CharField(max_length=12, blank=True)
     name = models.CharField(max_length=32)
     voltage = models.DecimalField(max_digits=3, decimal_places=2, choices=voltage_choices, default=1)
     power = models.DecimalField(max_digits=6, decimal_places=2)
     power_factor = models.DecimalField(max_digits=3, decimal_places=2, default=0.93)
-    group = models.ForeignKey(GroupReceiver, on_delete=models.SET_NULL, null=True, blank=True, related_name="receivers")
     cable = models.ForeignKey(Cable, on_delete=models.SET_NULL, null=True, blank=True, related_name="receivers")
 
     def __str__(self):
@@ -145,7 +129,9 @@ class ProtectionDevices(models.Model):
     name = models.IntegerField(choices=device_name_choices, default=0)
     type = models.IntegerField(choices=overcurrent_type_choices, default=0)  # typ zabezpieczenia
     current = models.SmallIntegerField(choices=current_choices, default=0)  # amperaż zabezpieczenia
-    off_time = models.DecimalField(max_digits=2, decimal_places=1, default=5)
+    #kr_factor = models.DecimalField(max_digits=2, decimal_places=1, default=1)
+    #off_time = models.DecimalField(choices=devices_off_time_choices, max_digits=2, decimal_places=1, default=5)
+    #k2_factor = models.DecimalField(max_digits=3, decimal_places=2, choices=overload_factor_choices, default=0)
     receivers = models.ForeignKey(Receiver, on_delete=models.SET_NULL, blank=True, null=True, related_name="device")
 
     def __str__(self):

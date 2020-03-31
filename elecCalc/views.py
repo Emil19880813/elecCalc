@@ -1,26 +1,69 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import math
 
+from django.http import HttpResponse
 from django.views import View
 from django.shortcuts import render, redirect
 
 
 # Create your views here.
-from elecCalc.forms import ReceiverForm, CableForm, ProtectionDevicesForm, ResultsForm, OverloadConditionsForm, \
-     GroupReceiverForm
-from elecCalc.models import Cable, ProtectionDevices, Receiver, GroupReceiver
+from elecCalc.forms import CableForm, ProtectionDevicesForm, CableSelectionForm, ReceiverForm
+from elecCalc.models import Cable, ProtectionDevices, Receiver
 
 
 class MainPage(View):
     def get(self, request):
-        receiver_form = ReceiverForm()
-        cable_form = CableForm()
-        devices_form = ProtectionDevicesForm()
-        results_form = ResultsForm()
-        overload_form = OverloadConditionsForm()
-        return render(request, 'main_page.html', context={'receiver_form': receiver_form,
-                                                          'cable_form': cable_form, 'devices_form': devices_form,
-                                                          'results_form': results_form, 'overload_form': overload_form})
+        cable_selection_form = CableSelectionForm()
+        return render(request, 'main_page.html', context={'cable_selection_form': cable_selection_form})
+
+    def post(self, request):
+        cable_selection_form = CableSelectionForm(request.POST)
+        if cable_selection_form.is_valid():
+            return HttpResponse('ok')
+
+            '''
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            name = cable_selection_form.cleaned_data.get('name')
+            
+
+            
+
+            i_r = devices.current * devices.kr_factor
+            i_dd = Cable.objects.filter(material=cable.material, insulation=cable.insulation,
+                                        cable_cross_section=cable.cable_cross_section,
+                                        cable_routing=cable.cable_routing).first().capacity
+            i_2 = devices.off_time * i_dd
+            if receiver.voltage == '0.23':
+                i_b = receiver.power * 1000 / (receiver.power_factor * receiver.voltage * 1000)
+                delta_u = 2 * receiver.power * 1000 * cable.length * 100 / (
+                            56 * cable.cable_cross_section * pow(receiver.voltage * 1000, 2))
+                return render(request, 'main_page.html',
+                              context={'i_r': i_r, 'i_dd': i_dd, 'i_2': i_2, 'i_b': i_b, 'delta_u': delta_u})
+            i_b = receiver.power * 1000 / (math.sqrt(3) * receiver.power_factor * receiver.voltage * 1000)
+            delta_u = receiver.power * 1000 * cable.length * 100 / (
+                        56 * cable.cable_cross_section * pow(receiver.voltage * 1000, 2))
+            return render(request, 'main_page.html',
+                          context={'i_r': i_r, 'i_dd': i_dd, 'i_2': i_2, 'i_b': i_b, 'delta_u': delta_u})
+'''
+
+
 
 #TODO: wyświetlanie danych
 class DisplayCableView(View):
@@ -38,10 +81,6 @@ class DisplayReceiverView(View):
         receivers = Receiver.objects.all()
         return render(request, 'display_receiver.html', context={'receivers': receivers})
 
-class DisplayGroupReceiverView(View):
-    def get(self, request):
-        group_receivers = GroupReceiver.objects.all()
-        return render(request, 'display_group_receiver.html', context={'group_receivers': group_receivers})
 
 #TODO: edit data
 class EditCableView(View):
@@ -68,17 +107,6 @@ class EditDeviceView(View):
             device_form.save()
             return redirect('elecCalc:display-device')
 
-class EditGroupReceiverView(View):
-    def get(self, request, group_id):
-        group = GroupReceiver.objects.get(pk=group_id)
-        group_form = GroupReceiverForm(instance=group)
-        return render(request, "edit_group.html", context={"form": group_form})
-    def post(self, request, group_id):
-        group = GroupReceiver.objects.get(pk=group_id)
-        group_form = GroupReceiverForm(request.POST, instance=group)
-        if group_form.is_valid():
-            group_form.save()
-            return redirect('elecCalc:display-group-receiver')
 
 class EditReceiverView(View):
     def get(self, request, receiver_id):
@@ -103,10 +131,6 @@ class DeleteDeviceView(View):
         ProtectionDevices.objects.get(pk=device_id).delete()
         return redirect('elecCalc:display-device')
 
-class DeleteGroupReceiverView(View):
-    def get(self, request, group_id):
-        GroupReceiver.objects.get(pk=group_id).delete()
-        return redirect('elecCalc:display-group-receiver')
 
 class DeleteReceiverView(View):
     def get(self, request, receiver_id):
@@ -137,16 +161,6 @@ class AddDeviceView(View):
             device_form.save()
         return redirect('elecCalc:display-device')
 
-class AddGroupReceiverView(View):
-    def get(self, request):
-        group_form = GroupReceiverForm()
-        return render(request, "add_group_receiver.html", context={"form": group_form})
-    def post(self, request):
-        group_form = GroupReceiverForm(request.POST)
-        if group_form.is_valid():
-            #dodać walidację "brak możliwości dublowania wpisów"
-            group_form.save()
-        return redirect('elecCalc:display-group-receiver')
 
 class AddReceiverView(View):
     def get(self, request):
@@ -158,3 +172,7 @@ class AddReceiverView(View):
             #dodać walidację "brak możliwości dublowania wpisów"
             receiver_form.save()
         return redirect('elecCalc:display-receiver')
+
+'''
+
+'''

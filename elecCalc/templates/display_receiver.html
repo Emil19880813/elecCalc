@@ -4,7 +4,6 @@
 <h4 class="account-heading">Zestawienie odbiorników:</h4>
     <div class="col-1"><a href="{% url 'elecCalc:add-receiver' %}"><img src="{% static "text-plus-icon.png" %}" alt="Trash"></a></div>
     <div class="row">
-        <div class="col-3">Grupa odbiorników</div>
         <div class="col-2">Nazwa</div>
         <div class="col-1">Napięcie [kV]</div>
         <div class="col-1">Moc [kW]</div>
@@ -13,7 +12,6 @@
     </div>
     {% for receiver in receivers %}
     <div class="row">
-        <div class="col-3">{{ receiver.group }}</div>
         <div class="col-2">{{ receiver.name }}</div>
         <div class="col-1">{{ receiver.get_voltage_display }}</div>
         <div class="col-1">{{ receiver.power }}</div>

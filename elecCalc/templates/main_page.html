@@ -1,61 +1,28 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+{% load static %}
 {% block content %}
 <form action="#" method="post">
     {% csrf_token %}
     <div class="form-row ">
-        <div class="form-group col-md-6 mb-0">Odbiornik:</div>
-    </div>
-    <div class="form-row  border border-secondary">
-        {% crispy receiver_form %}
-    </div>
+        <div class="col-md-6 mb-0">Odbiornik:</div>
 
-    <div class="form-row">
-        <div class="form-group col-md-12 mb-0">Linia kablowa:</div>
-    </div>
-
-    <div class="form-row border border-secondary">
-        {% crispy cable_form %}
-    </div>
-
-    <div class="form-row">
-        <div class="form-group col-md-12 mb-0">Zabezpieczenie:</div>
-    </div>
-
-    <div class="form-row border border-secondary">
-        {% crispy devices_form %}
-    </div>
-    <button type="submit" class="btn btn-primary">Oblicz</button>
-
-    <div class="form-row">
-        <div class="form-group col-md-12 mb-0">Wyniki:</div>
-    </div>
-
-    <div class="form-row border border-secondary">
-        <div class="form-group col-md-1 mb-0">
-            {{ results_form.Ib_current|as_crispy_field }}
+        <div class="form-group col-md-12 mb-0">
+            {% crispy cable_selection_form %}
         </div>
-        <div class="form-group col-md-1 mb-0">
-            {{ results_form.In_current|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-1 mb-0">
-            {{ results_form.Idd_current|as_crispy_field }}
-        </div>
-        <div class="form-group col-md-1 mb-0">
-            {{ results_form.voltage_drop|as_crispy_field }}
-        </div>
-    </div>
 
-    <div class="form-row">
-        <div class="form-group col-md-12 mb-0">Warunki ochrony przeciążeniowej:</div>
-    </div>
-    <div class="form-row border border-secondary">
-        <div class="form-group col-md-2 mb-0">
-            {{ overload_form|crispy }}
-            <button type="submit" class="btn btn-primary">Dodaj do zestawienia</button>
-        </div>
+        <input type="submit" class="btn btn-primary" value="Oblicz">
     </div>
 </form>
-{% endblock content %}
+    <div class="border border-secondary results m-2"> Ir = {{ i_r }} </div>
+    <div class="border border-secondary results m-2"> Idd = {{ i_dd }} </div>
+    <div class="border border-secondary results m-2"> I2 = {{ i_2 }} </div>
+    <div class="border border-secondary results m-2"> Ib = {{ i_b }} </div>
+    <div class="border border-secondary results m-2"> deltaU = {{ delta_u }} </div>
 
+    <div class="form-group col-md-12 mb-0">Warunki ochrony przeciążeniowej:</div>
+    <div class="form-row border border-secondary">
+        <input type="submit" class="btn btn-primary">
+    </div>
+{% endblock content %}
 

@@ -101,11 +101,6 @@ class Cable(models.Model):
     cable_cross_section = models.DecimalField(max_digits=4, decimal_places=1, choices=cable_cross_section_choices, default=1)  # przekrój
     capacity = models.DecimalField(max_digits=4, decimal_places=1)  # obciążalnosc długotrwała
     cable_routing = models.IntegerField(choices=routing_choices, default=1)  # sposób ułożenia
-    #amount = models.IntegerField(default=1)
-    #core = models.IntegerField(default=1)
-    #layer_factor = models.DecimalField(max_digits=3, decimal_places=2, default=1)
-    #length = models.IntegerField(default=50)
-
 
     def __str__(self):
         return f'{self.get_material_display()}/{self.get_insulation_display()}/{self.get_cable_cross_section_display()}/' \
@@ -114,7 +109,7 @@ class Cable(models.Model):
 
 
 class Receiver(models.Model):
-    #circuit_number = models.CharField(max_length=12, blank=True)
+
     name = models.CharField(max_length=32)
     voltage = models.DecimalField(max_digits=3, decimal_places=2, choices=voltage_choices, default=1)
     power = models.DecimalField(max_digits=6, decimal_places=2)
@@ -129,9 +124,6 @@ class ProtectionDevices(models.Model):
     name = models.IntegerField(choices=device_name_choices, default=0)
     type = models.IntegerField(choices=overcurrent_type_choices, default=0)  # typ zabezpieczenia
     current = models.SmallIntegerField(choices=current_choices, default=0)  # amperaż zabezpieczenia
-    #kr_factor = models.DecimalField(max_digits=2, decimal_places=1, default=1)
-    #off_time = models.DecimalField(choices=devices_off_time_choices, max_digits=2, decimal_places=1, default=5)
-    #k2_factor = models.DecimalField(max_digits=3, decimal_places=2, choices=overload_factor_choices, default=0)
     receivers = models.ForeignKey(Receiver, on_delete=models.SET_NULL, blank=True, null=True, related_name="device")
 
     def __str__(self):

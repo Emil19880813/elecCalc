@@ -11,28 +11,30 @@ class CableSelectionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CableSelectionForm, self).__init__(*args, **kwargs)
+
         self.fields['circuit_number'] = forms.CharField(max_length=12, help_text='numer obwodu')
+        self.fields['voltage'] = forms.ChoiceField(help_text='napięcie',
+           choices=tuple([(receiver.get_voltage_display, receiver.get_voltage_display) for receiver in Receiver.objects.all().distinct('voltage')]))
+        #self.fields['material'] = forms.ChoiceField(help_text='materiał',
+            #choices=((cable.get_material_display, cable.get_material_display) for cable in Cable.objects.all().distinct('material')))
+        #self.fields['insulation'] = forms.ChoiceField(help_text='izolacja',
+           #choices=((cable.get_insulation_display, cable.get_insulation_display) for cable in Cable.objects.all().distinct('insulation')))
+       # self.fields['cable_cross_section'] = forms.ChoiceField(help_text='przekrój',
+            #choices=((cable.get_cable_cross_section_display, cable.get_cable_cross_section_display) for cable in Cable.objects.all().distinct('cable_cross_section')))
+       # self.fields['cable_routing'] = forms.ChoiceField(help_text='sposób ułożenia',
+            #choices=((cable.get_cable_routing_display, cable.get_cable_routing_display) for cable in Cable.objects.all().distinct('cable_routing')))
+        self.fields['amount'] = forms.IntegerField(max_value=8, min_value=1, help_text='ilość kabli')
+        self.fields['core'] = forms.IntegerField(max_value=8, min_value=1, help_text='ilość żył na fazę')
+        self.fields['layer_factor'] = forms.DecimalField(max_digits=3, decimal_places=2, max_value=1, min_value=0.1, help_text='współczynnik ułożenia')
+        self.fields['length'] = forms.IntegerField(max_value=250, min_value=1, help_text='długość')
 
-        self.fields['material'] = forms.ChoiceField(help_text='materiał',
-            choices=((cable.material, cable.get_material_display()) for cable in Cable.objects.all().distinct('material')))
-        self.fields['insulation'] = forms.ChoiceField(help_text='izolacja',
-            choices=((cable.insulation, cable.get_insulation_display) for cable in Cable.objects.all().distinct('insulation')))
-        self.fields['cable_cross_section'] = forms.ChoiceField(help_text='przekrój',
-            choices=((cable.cable_cross_section, cable.get_cable_cross_section_display) for cable in Cable.objects.all().distinct('cable_cross_section')))
-        self.fields['cable_routing'] = forms.ChoiceField(help_text='sposób ułożenia',
-            choices=((cable.cable_routing, cable.get_cable_routing_display) for cable in Cable.objects.all().distinct('cable_routing')))
-        self.fields['amount'] = forms.IntegerField(max_value=8, min_value=1, help_text='ilość kabli',)
-        self.fields['core'] = forms.IntegerField(max_value=8, min_value=1, help_text='ilość żył na fazę',)
-        self.fields['layer_factor'] = forms.DecimalField(max_digits=3, decimal_places=2, max_value=1, min_value=0.1, help_text='współczynnik ułożenia',)
-        self.fields['length'] = forms.IntegerField(max_value=250, min_value=1, help_text='długość',)
-
-        self.fields['type'] = forms.ChoiceField(help_text='typ',
-            choices=((device.type, device.get_type_display) for device in ProtectionDevices.objects.all().distinct('type')))
-        self.fields['current'] = forms.ChoiceField(help_text='prąd znamionowy',
-            choices=((device.current, device.get_current_display) for device in ProtectionDevices.objects.all().distinct('current')))
-        self.fields['kr_factor'] = forms.DecimalField(max_digits=3, decimal_places=2, max_value=1, min_value=0.1, help_text='nastawa członu przeciążeniowego',)
-        self.fields['off_time'] = forms.ChoiceField(choices=((0, 0.2), (1, 0.4), (2, 5)), help_text='czas wyłączenia')
-        self.fields['k2_factor'] = forms.ChoiceField(choices=((0, 1.2), (1, 1.45), (2, 1.6), (3, 1.9)), help_text='współczynnik k2')
+        #self.fields['type'] = forms.ChoiceField(help_text='typ',
+           # choices=((device.get_type_display, device.get_type_display) for device in ProtectionDevices.objects.all().distinct('type')))
+        #self.fields['current'] = forms.ChoiceField(help_text='prąd znamionowy',
+           # choices=((device.get_current_display, device.get_current_display) for device in ProtectionDevices.objects.all().distinct('current')))
+        self.fields['kr_factor'] = forms.DecimalField(max_digits=3, decimal_places=2, max_value=1, min_value=0.1, help_text='nastawa członu przeciążeniowego')
+        self.fields['off_time'] = forms.ChoiceField(choices=((0.2, 0.2), (0.4, 0.4), (5, 5)), help_text='czas wyłączenia')
+        self.fields['k2_factor'] = forms.ChoiceField(choices=((1.2, 1.2), (1.45, 1.45), (1.6, 1.6), (1.9, 1.9)), help_text='współczynnik k2')
 
 
         self.helper = FormHelper()

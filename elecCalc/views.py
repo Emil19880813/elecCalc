@@ -20,50 +20,50 @@ class MainPage(View):
     def post(self, request):
         cable_selection_form = CableSelectionForm(request.POST)
         if cable_selection_form.is_valid():
-            return HttpResponse('ok')
-
-            '''
+            circuit_number = cable_selection_form.cleaned_data.get('circuit_number')
             name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            name = cable_selection_form.cleaned_data.get('name')
-            
-
-            
-
-            i_r = devices.current * devices.kr_factor
-            i_dd = Cable.objects.filter(material=cable.material, insulation=cable.insulation,
-                                        cable_cross_section=cable.cable_cross_section,
-                                        cable_routing=cable.cable_routing).first().capacity
-            i_2 = devices.off_time * i_dd
-            if receiver.voltage == '0.23':
-                i_b = receiver.power * 1000 / (receiver.power_factor * receiver.voltage * 1000)
-                delta_u = 2 * receiver.power * 1000 * cable.length * 100 / (
-                            56 * cable.cable_cross_section * pow(receiver.voltage * 1000, 2))
-                return render(request, 'main_page.html',
-                              context={'i_r': i_r, 'i_dd': i_dd, 'i_2': i_2, 'i_b': i_b, 'delta_u': delta_u})
-            i_b = receiver.power * 1000 / (math.sqrt(3) * receiver.power_factor * receiver.voltage * 1000)
-            delta_u = receiver.power * 1000 * cable.length * 100 / (
-                        56 * cable.cable_cross_section * pow(receiver.voltage * 1000, 2))
-            return render(request, 'main_page.html',
-                          context={'i_r': i_r, 'i_dd': i_dd, 'i_2': i_2, 'i_b': i_b, 'delta_u': delta_u})
+            voltage = cable_selection_form.cleaned_data.get('voltage')
+            power = cable_selection_form.cleaned_data.get('power')
+            power_factor = cable_selection_form.cleaned_data.get('power_factor')
+            material = cable_selection_form.cleaned_data.get('material')
+            insulation = cable_selection_form.cleaned_data.get('insulation')
+            cable_cross_section = cable_selection_form.cleaned_data.get('cable_cross_section')
+            cable_routing = cable_selection_form.cleaned_data.get('cable_routing')
+            amount = cable_selection_form.cleaned_data.get('amount')
+            core = cable_selection_form.cleaned_data.get('core')
+            layer_factor = cable_selection_form.cleaned_data.get('layer_factor')
+            length = cable_selection_form.cleaned_data.get('length')
+            type = cable_selection_form.cleaned_data.get('current')
+            current = cable_selection_form.cleaned_data.get('current')
+            kr_factor = cable_selection_form.cleaned_data.get('kr_factor')
+            off_time = cable_selection_form.cleaned_data.get('off_time')
+            k2_factor = cable_selection_form.cleaned_data.get('k2_factor')
+            return HttpResponse('działa')
 '''
+            #i_r = current * kr_factor
+            i_dd = float(Cable.objects.filter(material=material, insulation=insulation,
+                                        cable_cross_section=cable_cross_section,
+                                        cable_routing=cable_routing).first().capacity)
 
 
+            return render(request, 'main_page.html',
+                          context={'cable_selection_form': cable_selection_form, 'i_dd': i_dd})
+
+            i_2 = off_time * i_dd
+            if voltage == '0.23':
+                i_b = power * 1000 / (power_factor * voltage * 1000)
+                delta_u = 2 * power * 1000 * length * 100 / (
+                            56 * cable_cross_section * pow(voltage * 1000, 2))
+                return render(request, 'main_page.html',
+                              context={'cable_selection_form': cable_selection_form, 'i_r': i_r, 'i_dd': i_dd,
+                                       'i_2': i_2, 'i_b': i_b, 'delta_u': delta_u})
+            i_b = power * 1000 / (math.sqrt(3) * power_factor * voltage * 1000)
+            delta_u = power * 1000 * length * 100 / (
+                        56 * cable_cross_section * pow(voltage * 1000, 2))
+            return render(request, 'main_page.html',
+                          context={'cable_selection_form': cable_selection_form, 'i_r': i_r, 'i_dd': i_dd, 'i_2': i_2,
+                                   'i_b': i_b, 'delta_u': delta_u})
+'''
 
 #TODO: wyświetlanie danych
 class DisplayCableView(View):

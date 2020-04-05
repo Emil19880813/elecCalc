@@ -2,129 +2,139 @@ from django.db import models
 
 # Create your models here.
 
-voltage_choices = (
-    (0, 0.23),
-    (1, 0.4),
-    (2, 15),
+
+OVERLOAD_FACTOR_CHOICES = (
+    ('1.2', '1.2'),
+    ('1.45', '1.45'),
+    ('1.6', '1.6'),
+    ('1.9', '1.9'),
 )
 
-overload_factor_choices = (
-        (0, 1.2),
-        (1, 1.45),
-        (2, 1.6),
-        (3, 1.9),
+CABLE_CROSS_SECTION_CHOICES = (
+    ('1.5', '1.5'),
+    ('2.5', '2.5'),
+    ('4', '4'),
+    ('6', '6'),
+    ('10', '10'),
+    ('16', '16'),
+    ('25', '25'),
+    ('35', '35'),
+    ('50', '50'),
+    ('70', '70'),
+    ('95', '95'),
+    ('125', '125'),
+    ('150', '150'),
+    ('185', '185'),
+    ('240', '240'),
 )
 
-cable_cross_section_choices = (
-    (0, 1.5),
-    (1, 2.5),
-    (2, 4),
-    (3, 6),
-    (4, 10),
-    (5, 16),
-    (6, 25),
-    (7, 35),
-    (8, 50),
-    (9, 70),
-    (10, 95),
-    (11, 125),
-    (12, 150),
-    (13, 185),
-    (14, 240),
+CABLE_INSULATION_CHOICES = (
+    ('PVC', 'PVC'),
+    ('XLPE', 'XLPE'),
 )
 
-cable_insulation_choices = (
-    (0, "PVC"),
-    (1, "XLPE"),
-)
-cable_type_choices = (
-    (0, "Al"),
-    (1, "Cu"),
-)
-routing_choices = (
-    (0, "A1"),
-    (1, "A2"),
-    (2, "B1"),
-    (3, "B2"),
-    (4, "C"),
-    (5, "D"),
-    (6, "E"),
-    (7, "F1"),
-    (8, "F2"),
-    (9, "F3"),
-    (10, "G"),
+CABLE_TYPE_CHOICES = (
+    ('Al', 'Al'),
+    ('Cu', 'Cu'),
 )
 
-overcurrent_type_choices = (
-    (0, "B"),
-    (1, "C"),
-    (2, "D"),
-    (3, "gG"),
-    (4, "Compact"),
+ROUTING_CHOICES = (
+    ('A1', 'A1'),
+    ('A2', 'A2'),
+    ('B1', 'B1'),
+    ('B2', 'B2'),
+    ('C', 'C'),
+    ('D', 'D'),
+    ('E', 'E'),
+    ('F1', 'F1'),
+    ('F2', 'F2'),
+    ('F3', 'F3'),
+    ('G', 'G'),
 )
 
-current_choices = (
-    (0, 10),
-    (1, 16),
-    (2, 25),
-    (3, 40),
-    (4, 50),
-    (5, 80),
-    (6, 100),
-    (7, 125),
-    (8, 160),
-    (9, 200),
-    (10, 250),
-    (11, 315),
-    (12, 400),
-    (13, 630),
-    (14, 800),
-    (15, 1000),
-    (16, 1250),
-    (17, 1600),
-    (18, 2500),
-    (19, 4000),
-)
-device_name_choices = (
-    (0, 'wyłącznik nadprądowy'),
-    (1, 'wyłącznik selektywny'),
-    (2, 'wyłącznik kompaktowy'),
-    (3, 'wyłącznik powietrzny'),
-    (4, 'wkładka bezpiecznikowa'),
+OVERCURRENT_TYPE_CHOICES = (
+    ('B', 'B'),
+    ('C', 'C'),
+    ('D', 'D'),
+    ('gG', 'gG'),
+    ('Compact', 'Compact'),
 )
 
+CURRENT_CHOICES = (
+    ('10', '10'),
+    ('16', '16'),
+    ('25', '25'),
+    ('40', '40'),
+    ('50', '50'),
+    ('80', '80'),
+    ('100', '100'),
+    ('125', '125'),
+    ('160', '160'),
+    ('200', '200'),
+    ('250', '250'),
+    ('315', '315'),
+    ('400', '400'),
+    ('630', '630'),
+    ('800', '800'),
+    ('1000', '1000'),
+    ('1250', '1250'),
+    ('1600', '1600'),
+    ('2500', '2500'),
+    ('4000', '4000'),
+)
+
+DEVICE_NAME_CHOICES = (
+    ('WN', 'wyłącznik nadprądowy'),
+    ('WS', 'wyłącznik selektywny'),
+    ('WK', 'wyłącznik kompaktowy'),
+    ('WP', 'wyłącznik powietrzny'),
+    ('B', 'wkładka bezpiecznikowa'),
+)
 
 
 class Cable(models.Model):
-    material = models.IntegerField(choices=cable_type_choices, default=1)  # materiał Cu Al
-    insulation = models.IntegerField(choices=cable_insulation_choices, default=0)  # izolacja
-    cable_cross_section = models.DecimalField(max_digits=4, decimal_places=1, choices=cable_cross_section_choices, default=1)  # przekrój
+    material = models.CharField(max_length=6, choices=CABLE_TYPE_CHOICES, default='Cu')  # materiał Cu Al
+    insulation = models.CharField(max_length=6, choices=CABLE_INSULATION_CHOICES, default='PVC')  # izolacja
+    cable_cross_section = models.CharField(max_length=6, choices=CABLE_CROSS_SECTION_CHOICES, default='2.5')  # przekrój
     capacity = models.DecimalField(max_digits=4, decimal_places=1)  # obciążalnosc długotrwała
-    cable_routing = models.IntegerField(choices=routing_choices, default=1)  # sposób ułożenia
+    cable_routing = models.CharField(max_length=2, choices=ROUTING_CHOICES, default='E')  # sposób ułożenia
 
     def __str__(self):
         return f'{self.get_material_display()}/{self.get_insulation_display()}/{self.get_cable_cross_section_display()}/' \
                f'{self.get_cable_routing_display()}'
 
 
-
-class Receiver(models.Model):
-
-    name = models.CharField(max_length=32)
-    voltage = models.DecimalField(max_digits=3, decimal_places=2, choices=voltage_choices, default=1)
-    power = models.DecimalField(max_digits=6, decimal_places=2)
-    power_factor = models.DecimalField(max_digits=3, decimal_places=2, default=0.93)
-    cable = models.ForeignKey(Cable, on_delete=models.SET_NULL, null=True, blank=True, related_name="receivers")
-
-    def __str__(self):
-        return f"{self.name} - {self.power}kW, {self.get_voltage_display()}kV"
-
-
 class ProtectionDevices(models.Model):
-    name = models.IntegerField(choices=device_name_choices, default=0)
-    type = models.IntegerField(choices=overcurrent_type_choices, default=0)  # typ zabezpieczenia
-    current = models.SmallIntegerField(choices=current_choices, default=0)  # amperaż zabezpieczenia
-    receivers = models.ForeignKey(Receiver, on_delete=models.SET_NULL, blank=True, null=True, related_name="device")
+    name = models.CharField(max_length=2, choices=DEVICE_NAME_CHOICES, default='WN')
+    type = models.CharField(max_length=12, choices=OVERCURRENT_TYPE_CHOICES, default='B')  # typ zabezpieczenia
+    current = models.CharField(max_length=6, choices=CURRENT_CHOICES, default='16')  # amperaż zabezpieczenia
+    cable = models.ForeignKey(Cable, on_delete=models.SET_NULL, null=True, blank=True, related_name="devices")
 
     def __str__(self):
         return f"{self.get_type_display()}/{self.get_current_display()}A"
+
+class CalculationResult(models.Model):
+    cir_number = models.CharField(max_length=12)
+    cir_name = models.CharField(max_length=64)
+    cir_voltage = models.DecimalField(max_digits=4, decimal_places=2)
+    cir_power = models.DecimalField(max_digits=6, decimal_places=2)
+    cir_cos_fi = models.DecimalField(max_digits=3, decimal_places=2)
+    cir_current = models.DecimalField(max_digits=6, decimal_places=2)
+    cab_amount = models.IntegerField()
+    core_amount = models.IntegerField()
+    cab_routing = models.CharField(max_length=2)
+    cab_insulation = models.CharField(max_length=4)
+    cab_material = models.CharField(max_length=2)
+    cab_cable_cross_section = models.DecimalField(max_digits=4, decimal_places=1)
+    cab_length = models.IntegerField()
+    cab_i_dd = models.DecimalField(max_digits=4, decimal_places=1)
+    cab_kc_factor = models.DecimalField(max_digits=3, decimal_places=2)
+    cab_i_z = models.DecimalField(max_digits=4, decimal_places=1)
+    dev_type = models.CharField(max_length=12)
+    dev_current = models.IntegerField()
+    dev_kr_factor = models.DecimalField(max_digits=3, decimal_places=2)
+    dev_i_r = models.DecimalField(max_digits=6, decimal_places=2)
+    dev_k2_factor = models.DecimalField(max_digits=5, decimal_places=2)
+    dev_i_2 = models.DecimalField(max_digits=6, decimal_places=2)
+    conditions = models.CharField(max_length=6)
+    cab_vol_drop = models.DecimalField(max_digits=4, decimal_places=2)

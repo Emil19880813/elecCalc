@@ -1,9 +1,9 @@
 from django.urls import path
 
-from elecCalc.views import MainPage, DisplayCableView, DisplayDevicesView, DisplayReceiverView, \
+from elecCalc.views import DisplayCableView, DisplayDevicesView, DisplayReceiverView, \
     EditCableView, EditDeviceView, EditReceiverView, DeleteCableView, \
     DeleteDeviceView, DeleteReceiverView, AddCableView, AddDeviceView, \
-    AddReceiverView
+    AddReceiverView, MainPage, CableListView, CableIddView
 
 app_name = 'elecCalc'
 
@@ -21,4 +21,6 @@ urlpatterns = [
     path('add-cable/', AddCableView.as_view(), name='add-cable'),
     path('add-device/', AddDeviceView.as_view(), name='add-device'),
     path('add-receiver/', AddReceiverView.as_view(), name='add-receiver'),
+    path('cable-list/', CableListView.as_view(), name='cable-list'),
+    path('display-idd/', CableIddView.as_view(), name='display-idd'),
 ]

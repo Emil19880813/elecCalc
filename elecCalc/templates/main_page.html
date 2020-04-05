@@ -4,25 +4,266 @@
 {% block content %}
 <form action="#" method="post">
     {% csrf_token %}
-    <div class="form-row ">
-        <div class="col-md-6 mb-0">Odbiornik:</div>
-
-        <div class="form-group col-md-12 mb-0">
-            {% crispy cable_selection_form %}
+    <label for="basic-url">ODBIORNIK:</label>
+    <div class="form-row align-items-baseline">
+        <div class="col-md-2">
+            <div class="input-group">
+                <input type="text" name="circuit_number" class="form-control" id="circuit_number" aria-describedby="">
+            </div>
+            <small id="circuit_number_text" class="form-text text-muted">Nr obwodu</small>
         </div>
 
+        <div class="col-md-2">
+            <div class="input-group">
+                <input type="text" name="receiver_name" class="form-control" id="receiver_name" aria-describedby="">
+            </div>
+            <small id="receiver_name_text" class="form-text text-muted">Nazwa obwodu</small>
+        </div>
+
+        <div class="col-md-2">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="voltage_prepend">Uo=</span>
+                </div>
+                    <select name="voltage" id="voltage" class="form-control">
+                        {% for voltage in voltages %}
+                            <option value="{{ voltage }}">{{ voltage }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="input-group-append">
+                        <span class="input-group-text">kV</span>
+                    </div>
+                    <small id="voltage_text" class="form-text text-muted">Napięcie znamionowe</small>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="power_prepend">Po=</span>
+                </div>
+                    <input type="number" name="power" minlength="0.01" maxlength="100000" step="0.01" class="form-control" id="power" aria-describedby="">
+                    <div class="input-group-append">
+                        <span class="input-group-text">kW</span>
+                    </div>
+                    <small id="power_text" class="form-text text-muted">Moc szczytowa</small>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="power_factor_prepend">cos fi=</span>
+                </div>
+                    <input type="number" name="power_factor" minlength="0.1" maxlength="1" step="0.1"  class="form-control" id="power_factor" aria-describedby="">
+                    <div class="input-group mb-2">
+                        <small id="power_factor_text" class="form-text text-muted">współczynnik mocy</small>
+                    </div>
+            </div>
+        </div>
+    </div>
+<!--............................................................................................................ -->
+    <label for="basic-url">LINIA KABLOWA:</label>
+    <div class="form-row">
+        <div class="col-md-1">
+            <div class="input-group">
+                <select id="material" name="material" class="form-control">
+                    {% for material in materials %}
+                        <option value="{{ material.get_material_display }}">{{ material.get_material_display }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <small id="material_text" class="form-text text-muted">Materiał</small>
+        </div>
+
+        <div class="col-md-1">
+            <div class="input-group">
+                <select id="insulation" name="insulation" class="form-control">
+                    {% for insulation in insulations %}
+                        <option value="{{ insulation.get_insulation_display }}">{{ insulation.get_insulation_display }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <small id="insulation_text" class="form-text text-muted">Izolacja</small>
+        </div>
+
+        <div class="col-md-2">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="cable_cross_section_prepend">S=</span>
+                </div>
+                    <select id="cable_cross_section" name="cable_cross_section" class="form-control">
+                        {% for cable_cross_section in cable_cross_sections %}
+                            <option value="{{ cable_cross_section.get_cable_cross_section_display }}">{{ cable_cross_section.get_cable_cross_section_display }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="input-group-append">
+                        <span class="input-group-text">mm2</span>
+                    </div>
+                    <div class="input-group mb-2">
+                        <small id="cable_cross_section_text" class="form-text text-muted">Przekrój</small>
+                    </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="input-group">
+                <select id="cable_routing" name="cable_routing" class="form-control">
+                    {% for cable_routing in cables_routing %}
+                        <option value="{{ cable_routing.get_cable_routing_display }}">{{ cable_routing.get_cable_routing_display }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <small id="cable_routing_text" class="form-text text-muted">Sposób ułożenia</small>
+        </div>
+
+        <div class="col-md-1">
+            <div class="input-group">
+                <input type="number" name="amount" minlength="1" maxlength="10" step="1" class="form-control" id="amount" aria-describedby="">
+            </div>
+            <small id="amount_text" class="form-text text-muted">Ilość kabli</small>
+        </div>
+
+        <div class="col-md-1">
+            <div class="input-group">
+                <input type="number" name="core" minlength="1" maxlength="10" step="1" class="form-control" id="core" aria-describedby="">
+            </div>
+            <small id="core_text" class="form-text text-muted">Ilość żył na fazę</small>
+        </div>
+
+        <div class="col-md-1">
+            <div class="input-group">
+                <input type="number" name="layer_factor" minlength="0.1" maxlength="1" step="0.1" class="form-control" id="layer_factor" aria-describedby="">
+            </div>
+            <small id="layer_factor_text" class="form-text text-muted">Współczynnik ułożenia</small>
+        </div>
+
+        <div class="col-md-2">
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="length_prepend">l=</span>
+                </div>
+                <input type="number" name="length" class="form-control" id="length" aria-describedby="">
+                <div class="input-group-append">
+                    <span class="input-group-text">mb</span>
+                </div>
+            </div>
+            <small id="length_text" class="form-text text-muted">Długość</small>
+        </div>
+    </div>
+<!--............................................................................................................ -->
+    <label for="basic-url">ZABEZPIECZENIE:</label>
+    <div class="form-row">
+        <div class="col-md-2">
+            <div class="input-group">
+                <select id="device_type" name="device_type" class="form-control">
+                    {% for name in names %}
+                        <option value="{{ name.type }}">{{ name.get_type_display }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="input-group mb-1">
+                <small id="device_type_text" class="form-text text-muted">Typ zabezpieczenia</small>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="current_prepend">Iz=</span>
+                </div>
+                    <select id="current" name="current" class="form-control">
+                        {% for current in currents %}
+                            <option value="{{ current.get_current_display }}">{{ current.get_current_display }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="input-group-append">
+                        <span class="input-group-text">A</span>
+                    </div>
+                    <small id="current_text" class="form-text text-muted">Prąd znamionowy zabezpieczenia</small>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="kr_factor_prepend">kr=</span>
+                </div>
+                <input type="number" name="kr_factor" minlength="0.1" maxlength="1" step="0.1" class="form-control" id="kr_factor" aria-describedby="">
+                <small id="kr_factor_text" class="form-text text-muted">nastawa członu przeciążeniowego</small>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="off_time_prepend">t=</span>
+                </div>
+                <select id="off_time" name="off_time" class="form-control">
+                    {% for time_off in times_off %}
+                            <option value="{{ time_off }}">{{ time_off }}</option>
+                        {% endfor %}
+                </select>
+                <div class="input-group-append">
+                    <span class="input-group-text">s</span>
+                </div>
+                <div class="input-group mb-2">
+                    <small id="off_time_text" class="form-text text-muted">czas wyłączenia</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="k2_factor_prepend">k2=</span>
+                </div>
+                <select id="k2_factor" name="k2_factor" class="form-control">
+                    {% for k2_factor in k2_factors %}
+                            <option value="{{ k2_factor }}">{{ k2_factor }}</option>
+                        {% endfor %}
+                </select>
+                <div class="input-group mb-2">
+                    <small id="k2_factor_text" class="form-text text-muted">współczynnik k2</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
         <input type="submit" class="btn btn-primary" value="Oblicz">
     </div>
 </form>
-    <div class="border border-secondary results m-2"> Ir = {{ i_r }} </div>
-    <div class="border border-secondary results m-2"> Idd = {{ i_dd }} </div>
-    <div class="border border-secondary results m-2"> I2 = {{ i_2 }} </div>
-    <div class="border border-secondary results m-2"> Ib = {{ i_b }} </div>
-    <div class="border border-secondary results m-2"> deltaU = {{ delta_u }} </div>
-
-    <div class="form-group col-md-12 mb-0">Warunki ochrony przeciążeniowej:</div>
-    <div class="form-row border border-secondary">
-        <input type="submit" class="btn btn-primary">
+    <div class="row">
+        <div class="form-group col-md-4 mb-0">WYNIKI:</div>
     </div>
+    <div class="row">
+        <div class="border border-secondary results m-1 col-md-2 small"> Iz = {{ i_z }} A</div>
+        <div class="border border-secondary results m-1 col-md-2 small"> Ir = {{ i_r }} A</div>
+        <div class="border border-secondary results m-1 col-md-2 small"> Ib = {{ i_b }} A</div>
+        <div class="border border-secondary results m-1 col-md-2 small"> I2 = {{ i_2 }} A</div>
+        <div class="border border-secondary results m-1 col-md-2 small"> deltaU = {{ delta_u }} %</div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4 mb-0">WARUNKI OCHRONY PRZECIĄŻENIOWEJ:</div>
+    </div>
+    <div class="row">
+        {% if first_condition %}
+            <div class="border border-secondary results m-1 col-md-2 small"> Iz >= Ir >= Ib ?</div>
+            <div class="border border-secondary results m-1 col-md-1" id="first_con_yes"> TAK </div>
+        {% else %}
+            <div class="border border-secondary results m-1 col-md-2 small"> Iz >= Ir >= Ib ?</div>
+            <div class="border border-secondary results m-1 col-md-1" id="first_con_no"> NIE </div>
+        {% endif %}
+    </div>
+    <div class="row">
+        {% if second_condition %}
+            <div class="border border-secondary results m-1 col-md-2 small" > 1.45 * Iz >= I2 ?</div>
+            <div class="border border-secondary results m-1 col-md-1" id="second_con_yes"> TAK </div>
+        {% else %}
+            <div class="border border-secondary results m-1 col-md-2 small"> 1.45 * Iz >= I2 ?</div>
+            <div class="border border-secondary results m-1 col-md-1" id="second_con_no"> NIE </div>
+        {% endif %}
+    </div>
+
 {% endblock content %}
 

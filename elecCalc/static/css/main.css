@@ -1,11 +1,39 @@
 body {
   padding-top: 0px;
   background-color: rgba(1, 1, 14, 0.3);
-  font-size: .7rem;
+  font-size: .9rem;
 }
 
 .results {
   font-size: 2rem;
   background-color: white;
+}
 
+.small {
+  font-size: 1rem;
+}
+
+#first_con_yes {
+  font-size: 1rem;
+  color: green;
+}
+
+#first_con_no {
+  font-size: 1rem;
+  color: red;
+}
+
+#second_con_yes {
+  font-size: 1rem;
+  color: green;
+}
+
+#second_con_no {
+  font-size: 1rem;
+  color: red;
+}
+
+#idd{
+  color:red;
+  font-size: 1rem;
 }

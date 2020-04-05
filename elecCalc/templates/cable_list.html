@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+<div class="table-responsive ">
+    <table class="table table-bordered">
+        <thead>
+                <th>Nr obwodu</th>
+                <th>Nazwa</th>
+                <th>Uo [kV]</th>
+                <th>Po [kW]</th>
+                <th>cos fi</th>
+                <th>Ib [A]</th>
+                <th>Ilość kabli</th>
+                <th>Ilość żył</th>
+                <th>Sposób ułożenia</th>
+                <th>Izolacja</th>
+                <th>Typ</th>
+                <th>Przekrój [mm2]</th>
+                <th>Długość [m]</th>
+                <th>Id [A]</th>
+                <th>kc</th>
+                <th>Iz [A]</th>
+                <th>Typ</th>
+                <th>In [A]</th>
+                <th>kr</th>
+                <th>Ir [A]</th>
+                <th>k2</th>
+                <th>I2</th>
+                <th>Warunki spełnione?</th>
+                <th>deltaU [%]</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+                <tr>
+                <th>{{ result.cir_number }}</th>
+                <th>{{ result.cir_name }}</th>
+                <th>{{ result.cir_voltage }}</th>
+                <th>{{ result.cir_power }}</th>
+                <th>{{ result.cir_cos_fi }}</th>
+                <th>{{ result.cir_current }}</th>
+                <th>{{ result.cab_amount }}</th>
+                <th>{{ result.core_amount }}</th>
+                <th>{{ result.cab_routing }}</th>
+                <th>{{ result.cab_insulation }}</th>
+                <th>{{ result.cab_material }}</th>
+                <th>{{ result.cab_cable_cross_section }}</th>
+                <th>{{ result.cab_length }}</th>
+                <th>{{ result.cab_i_dd }}</th>
+                <th>{{ result.cab_kc_factor }}</th>
+                <th>{{ result.cab_i_z }}</th>
+                <th>{{ result.dev_type }}</th>
+                <th>{{ result.dev_current }}</th>
+                <th>{{ result.dev_kr_factor }}</th>
+                <th>{{ result.dev_i_r }}</th>
+                <th>{{ result.dev_k2_factor }}</th>
+                <th>{{ result.dev_i_2 }}</th>
+                <th>{{ result.conditions }}</th>
+                <th>{{ result.cab_vol_drop }}</th>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

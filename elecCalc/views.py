@@ -5,65 +5,148 @@ import math
 from django.http import HttpResponse
 from django.views import View
 from django.shortcuts import render, redirect
+from django import forms
 
 
 # Create your views here.
-from elecCalc.forms import CableForm, ProtectionDevicesForm, CableSelectionForm, ReceiverForm
-from elecCalc.models import Cable, ProtectionDevices, Receiver
+from elecCalc.forms import CableForm, ProtectionDevicesForm, CableSelectForm
+from elecCalc.models import Cable, ProtectionDevices, CalculationResult
 
+
+class Choices:
+
+    voltage_choices = (
+        (0, 0.23),
+        (1, 0.4),
+        (2, 15),
+    )
+
+    time_off = (
+        (0, 0.2),
+        (1, 0.4),
+        (2, 5),
+    )
+
+    k2_factor = (
+        (0, 1.2),
+        (1, 1.45),
+        (2, 1.6),
+        (3, 1.9),
+    )
 
 class MainPage(View):
     def get(self, request):
-        cable_selection_form = CableSelectionForm()
-        return render(request, 'main_page.html', context={'cable_selection_form': cable_selection_form})
+
+        voltages = [voltage[1] for voltage in Choices.voltage_choices]
+        materials = [cable for cable in Cable.objects.all().distinct('material')]
+        insulations = [cable for cable in Cable.objects.all().distinct('insulation')]
+        cable_cross_sections = [cable for cable in Cable.objects.all().distinct('cable_cross_section')]
+        cables_routing = [cable for cable in Cable.objects.all().distinct('cable_routing')]
+        names = [devices for devices in ProtectionDevices.objects.all().distinct('name')]
+        currents = [devices for devices in ProtectionDevices.objects.all().distinct('current')]
+        times_off = [time_off[1] for time_off in Choices.time_off]
+        k2_factors = [k2_factor[1] for k2_factor in Choices.k2_factor]
+        return render(request, 'main_page.html', context={'voltages': voltages, 'materials': materials,
+                                                          'insulations': insulations, 'cable_cross_sections': cable_cross_sections,
+                                                          'cables_routing': cables_routing, 'names': names, 'currents': currents,
+                                                          'times_off': times_off, 'k2_factors': k2_factors})
 
     def post(self, request):
-        cable_selection_form = CableSelectionForm(request.POST)
-        if cable_selection_form.is_valid():
-            circuit_number = cable_selection_form.cleaned_data.get('circuit_number')
-            name = cable_selection_form.cleaned_data.get('name')
-            voltage = cable_selection_form.cleaned_data.get('voltage')
-            power = cable_selection_form.cleaned_data.get('power')
-            power_factor = cable_selection_form.cleaned_data.get('power_factor')
-            material = cable_selection_form.cleaned_data.get('material')
-            insulation = cable_selection_form.cleaned_data.get('insulation')
-            cable_cross_section = cable_selection_form.cleaned_data.get('cable_cross_section')
-            cable_routing = cable_selection_form.cleaned_data.get('cable_routing')
-            amount = cable_selection_form.cleaned_data.get('amount')
-            core = cable_selection_form.cleaned_data.get('core')
-            layer_factor = cable_selection_form.cleaned_data.get('layer_factor')
-            length = cable_selection_form.cleaned_data.get('length')
-            type = cable_selection_form.cleaned_data.get('current')
-            current = cable_selection_form.cleaned_data.get('current')
-            kr_factor = cable_selection_form.cleaned_data.get('kr_factor')
-            off_time = cable_selection_form.cleaned_data.get('off_time')
-            k2_factor = cable_selection_form.cleaned_data.get('k2_factor')
-            return HttpResponse('działa')
-'''
-            #i_r = current * kr_factor
-            i_dd = float(Cable.objects.filter(material=material, insulation=insulation,
-                                        cable_cross_section=cable_cross_section,
-                                        cable_routing=cable_routing).first().capacity)
+
+        voltages = [voltage[1] for voltage in Choices.voltage_choices]
+        materials = [cable for cable in Cable.objects.all().distinct('material')]
+        insulations = [cable for cable in Cable.objects.all().distinct('insulation')]
+        cable_cross_sections = [cable for cable in Cable.objects.all().distinct('cable_cross_section')]
+        cables_routing = [cable for cable in Cable.objects.all().distinct('cable_routing')]
+        names = [devices for devices in ProtectionDevices.objects.all().distinct('name')]
+        currents = [devices for devices in ProtectionDevices.objects.all().distinct('current')]
+        times_off = [time_off[1] for time_off in Choices.time_off]
+        k2_factors = [k2_factor[1] for k2_factor in Choices.k2_factor]
+
+        circuit_number = request.POST.get('circuit_number')
+        receiver_name = request.POST.get('receiver_name')
+        voltage = float(request.POST.get('voltage'))
+        power = int(request.POST.get('power'))
+        power_factor = float(request.POST.get('power_factor'))
+        material = request.POST.get('material')
+        insulation = request.POST.get('insulation')
+        cable_cross_section = request.POST.get('cable_cross_section')
+        cable_routing = request.POST.get('cable_routing')
+        amount = int(request.POST.get('amount'))
+        core = int(request.POST.get('core'))
+        layer_factor = float(request.POST.get('layer_factor'))
+        length = int(request.POST.get('length'))
+        device_type = request.POST.get('device_type')
+        current = int(request.POST.get('current'))
+        kr_factor = float(request.POST.get('kr_factor'))
+        off_time = float(request.POST.get('off_time'))
+        k2_factor = float(request.POST.get('k2_factor'))
+        i_dd = float(Cable.objects.filter(material=material, insulation=insulation,
+                                      cable_cross_section=cable_cross_section,
+                                      cable_routing=cable_routing).first().capacity)
+        i_z = round(i_dd * layer_factor, 2)# obciązalność długotrwała
+        i_r = round(current * kr_factor, 2) # prąd nastawy zabezpieczenia przeciążeniowego
+        i_2 = round(i_r * k2_factor, 2)
+        second_condition = bool(1.45 * i_z >= i_2)
+
+        if voltage == 0.23:
+            i_b = round(power * 1000 / (power_factor * voltage * 1000), 2) # prąd szczytowy obwodu
+            delta_u = round(2 * power * 1000 * length * 100 / (
+                    56 * float(cable_cross_section) * pow(voltage * 1000, 2)), 2)
+            first_condition = bool(i_z >= i_r >= i_b)
+        else:
+            i_b = round(power * 1000 / (math.sqrt(3) * power_factor * voltage * 1000), 2)
+            delta_u = round(2 * power * 1000 * length * 100 / (
+                    56 * float(cable_cross_section) * pow(voltage * 1000, 2)), 2)
+            first_condition = bool(i_z >= i_r >= i_b)
+
+        CalculationResult.objects.create(cir_number=circuit_number, cir_name=receiver_name, cir_voltage=voltage, cir_power=power, cir_cos_fi=power_factor, cir_current=i_b,
+                                                  cab_amount=amount, core_amount=core, cab_routing=cable_routing, cab_insulation=insulation, cab_material=material,
+                                                  cab_cable_cross_section=float(cable_cross_section), cab_length=length, cab_i_dd=i_dd, cab_kc_factor=layer_factor,
+                                                  cab_i_z=i_z, dev_type=device_type, dev_current=current, dev_kr_factor=kr_factor, dev_i_r=i_r,
+                                                  dev_k2_factor=k2_factor, dev_i_2=i_2, conditions=str(first_condition), cab_vol_drop=delta_u)
 
 
-            return render(request, 'main_page.html',
-                          context={'cable_selection_form': cable_selection_form, 'i_dd': i_dd})
 
-            i_2 = off_time * i_dd
-            if voltage == '0.23':
-                i_b = power * 1000 / (power_factor * voltage * 1000)
-                delta_u = 2 * power * 1000 * length * 100 / (
-                            56 * cable_cross_section * pow(voltage * 1000, 2))
-                return render(request, 'main_page.html',
-                              context={'cable_selection_form': cable_selection_form, 'i_r': i_r, 'i_dd': i_dd,
-                                       'i_2': i_2, 'i_b': i_b, 'delta_u': delta_u})
-            i_b = power * 1000 / (math.sqrt(3) * power_factor * voltage * 1000)
-            delta_u = power * 1000 * length * 100 / (
-                        56 * cable_cross_section * pow(voltage * 1000, 2))
-            return render(request, 'main_page.html',
-                          context={'cable_selection_form': cable_selection_form, 'i_r': i_r, 'i_dd': i_dd, 'i_2': i_2,
-                                   'i_b': i_b, 'delta_u': delta_u})
-'''
+
+        return render(request, 'main_page.html', context={'voltages': voltages, 'materials': materials,
+                                                      'insulations': insulations,
+                                                      'cable_cross_sections': cable_cross_sections,
+                                                      'cables_routing': cables_routing, 'names': names,
+                                                      'currents': currents,
+                                                      'times_off': times_off, 'k2_factors': k2_factors,
+                                                      'i_r': i_r, 'i_z': i_z, 'i_2': i_2, 'i_b': i_b,
+                                                      'delta_u': delta_u, 'first_condition': first_condition,
+                                                      'second_condition': second_condition})
+
+
+class CableListView(View):
+    def get(self, request):
+        results = CalculationResult.objects.all()
+        return render(request, 'cable_list.html', context={'results': results})
+
+class CableIddView(View):
+    def get(self, request):
+        cables = Cable.objects.all()
+        cable_select_form = CableSelectForm()
+        return render(request, 'display_idd.html', context={'cables': cables, 'cable_select_form': cable_select_form})
+    def post(self, request):
+        cables = Cable.objects.all()
+        cable_select_form = CableSelectForm(request.POST)
+        if cable_select_form.is_valid():
+            material = cable_select_form.cleaned_data.get('material')
+            insulation = cable_select_form.cleaned_data.get('insulation')
+            cable_cross_section = cable_select_form.cleaned_data.get('cable_cross_section')
+            cable_routing = cable_select_form.cleaned_data.get('cable_routing')
+
+            result = Cable.objects.filter(material=material, insulation=insulation,
+                                          cable_cross_section=cable_cross_section, cable_routing=cable_routing)[0]
+            return render(request, 'display_idd.html', context={'cables': cables, 'cable_select_form': cable_select_form, 'result': result})
+
+
+
+
+
 
 #TODO: wyświetlanie danych
 class DisplayCableView(View):

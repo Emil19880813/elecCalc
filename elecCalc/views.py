@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import math
+import math, csv
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views import View
 from django.shortcuts import render, redirect
 from django import forms
-
+from django.http import HttpRequest
 
 # Create your views here.
 from elecCalc.forms import CableForm, ProtectionDevicesForm, CableSelectForm
@@ -35,6 +35,12 @@ class Choices:
     )
 
 class MainPage(View):
+    next_position = 1
+
+    def __init__(self):
+        self.position = self.next_position
+        MainPage.next_position += 1
+
     def get(self, request):
 
         voltages = [voltage[1] for voltage in Choices.voltage_choices]
@@ -100,14 +106,11 @@ class MainPage(View):
                     56 * float(cable_cross_section) * pow(voltage * 1000, 2)), 2)
             first_condition = bool(i_z >= i_r >= i_b)
 
-        CalculationResult.objects.create(cir_number=circuit_number, cir_name=receiver_name, cir_voltage=voltage, cir_power=power, cir_cos_fi=power_factor, cir_current=i_b,
+        CalculationResult.objects.create(position=self.position, cir_number=circuit_number, cir_name=receiver_name, cir_voltage=voltage, cir_power=power, cir_cos_fi=power_factor, cir_current=i_b,
                                                   cab_amount=amount, core_amount=core, cab_routing=cable_routing, cab_insulation=insulation, cab_material=material,
                                                   cab_cable_cross_section=float(cable_cross_section), cab_length=length, cab_i_dd=i_dd, cab_kc_factor=layer_factor,
                                                   cab_i_z=i_z, dev_type=device_type, dev_current=current, dev_kr_factor=kr_factor, dev_i_r=i_r,
                                                   dev_k2_factor=k2_factor, dev_i_2=i_2, conditions=str(first_condition), cab_vol_drop=delta_u)
-
-
-
 
         return render(request, 'main_page.html', context={'voltages': voltages, 'materials': materials,
                                                       'insulations': insulations,
@@ -124,6 +127,19 @@ class CableListView(View):
     def get(self, request):
         results = CalculationResult.objects.all()
         return render(request, 'cable_list.html', context={'results': results})
+
+class PositionChange(View):
+    def post(self, request):
+        pos_nr = request.POST.get('pos_nr')
+        if pos_nr:
+            result = CalculationResult.objects.get(pk=int(pos_nr))
+            next_result = CalculationResult.objects.get(pk=(int(pos_nr) + 1))
+            result.position += 1
+            result.save()
+            next_result -= 1
+            next_result.save()
+            return JsonResponse({'status': 'ok'})
+
 
 class CableIddView(View):
     def get(self, request):
@@ -159,12 +175,6 @@ class DisplayDevicesView(View):
         devices = ProtectionDevices.objects.all()
         return render(request, 'display_device.html', context={'devices': devices})
 
-class DisplayReceiverView(View):
-    def get(self, request):
-        receivers = Receiver.objects.all()
-        return render(request, 'display_receiver.html', context={'receivers': receivers})
-
-
 #TODO: edit data
 class EditCableView(View):
     def get(self, request, cable_id):
@@ -191,18 +201,6 @@ class EditDeviceView(View):
             return redirect('elecCalc:display-device')
 
 
-class EditReceiverView(View):
-    def get(self, request, receiver_id):
-        receiver = Receiver.objects.get(pk=receiver_id)
-        receiver_form = ReceiverForm(instance=receiver)
-        return render(request, "edit_receiver.html", context={"form": receiver_form})
-    def post(self, request, receiver_id):
-        receiver = Receiver.objects.get(pk=receiver_id)
-        receiver_form = ReceiverForm(request.POST, instance=receiver)
-        if receiver_form.is_valid():
-            receiver_form.save()
-            return redirect('elecCalc:display-receiver')
-
 #TODO: remove data
 class DeleteCableView(View):
     def get(self, request, cable_id):
@@ -214,11 +212,10 @@ class DeleteDeviceView(View):
         ProtectionDevices.objects.get(pk=device_id).delete()
         return redirect('elecCalc:display-device')
 
-
-class DeleteReceiverView(View):
-    def get(self, request, receiver_id):
-        Receiver.objects.get(pk=receiver_id).delete()
-        return redirect('elecCalc:display-receiver')
+class DeleteResultView(View):
+    def get(self, request, result_id):
+        CalculationResult.objects.get(pk=result_id).delete()
+        return redirect('elecCalc:cable-list')
 
 
 #TODO: add data
@@ -245,17 +242,17 @@ class AddDeviceView(View):
         return redirect('elecCalc:display-device')
 
 
-class AddReceiverView(View):
-    def get(self, request):
-        receiver_form = ReceiverForm()
-        return render(request, "add_group_receiver.html", context={"form": receiver_form})
-    def post(self, request):
-        receiver_form = ReceiverForm(request.POST)
-        if receiver_form.is_valid():
-            #dodać walidację "brak możliwości dublowania wpisów"
-            receiver_form.save()
-        return redirect('elecCalc:display-receiver')
-
-'''
-
-'''
+def export_to_csv(request):
+    mod = CalculationResult._meta
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename={}.csv'.format(mod.verbose_name)
+    writer = csv.writer(response)
+    fields = [field for field in mod.get_fields()]
+    writer.writerow([field.verbose_name for field in fields])
+    for obj in CalculationResult.objects.all():
+        data_row = []
+        for field in fields:
+            value = getattr(obj, field.name)
+            data_row.append(value)
+        writer.writerow(data_row)
+    return response

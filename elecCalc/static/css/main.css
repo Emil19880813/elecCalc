@@ -37,3 +37,9 @@ body {
   color:red;
   font-size: 1rem;
 }
+
+.outset {
+  border-style: outset;
+  border-width: 5px;
+  border-color: white;
+}

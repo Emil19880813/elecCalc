@@ -4,6 +4,27 @@
 {% block content %}
 <form action="#" method="post">
     {% csrf_token %}
+    <label for="basic-url">ZASILANIE:</label>
+    <div class="form-row align-items-baseline outset">
+        <div class="col-md-3">
+            <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="transform_power_prepend">Pt=</span>
+                </div>
+                <select name="transform_power" id="transform_power" class="form-control">
+                    {% for voltage in voltages %}
+                        <option value="{{ voltage }}">{{ voltage }}</option>
+                    {% endfor %}
+                </select>
+                <div class="input-group-append">
+                    <span class="input-group-text">kVA</span>
+                </div>
+                <div class="input-group mb-2">
+                    <small id="transform_power_text" class="form-text text-muted">Moc transformatora</small>
+                </div>
+            </div>
+        </div>
+    </div>
     <label for="basic-url">ODBIORNIK:</label>
     <div class="form-row align-items-baseline">
         <div class="col-md-2">
@@ -64,9 +85,9 @@
     </div>
 <!--............................................................................................................ -->
     <label for="basic-url">LINIA KABLOWA:</label>
-    <div class="form-row">
+    <div class="form-row outset">
         <div class="col-md-1">
-            <div class="input-group">
+            <div class="input-group mt-3">
                 <select id="material" name="material" class="form-control">
                     {% for material in materials %}
                         <option value="{{ material.get_material_display }}">{{ material.get_material_display }}</option>
@@ -77,7 +98,7 @@
         </div>
 
         <div class="col-md-1">
-            <div class="input-group">
+            <div class="input-group mt-3">
                 <select id="insulation" name="insulation" class="form-control">
                     {% for insulation in insulations %}
                         <option value="{{ insulation.get_insulation_display }}">{{ insulation.get_insulation_display }}</option>

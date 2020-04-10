@@ -91,6 +91,23 @@ DEVICE_NAME_CHOICES = (
     ('B', 'wkładka bezpiecznikowa'),
 )
 
+POWER_TRAFO_CHOICES = (
+    ('100', '100'),
+    ('160', '160'),
+    ('200', '200'),
+    ('250', '250'),
+    ('315', '315'),
+    ('400', '400'),
+    ('500', '500'),
+    ('630', '630'),
+    ('800', '800'),
+    ('1000', '1000'),
+    ('1250', '1250'),
+    ('1600', '1600'),
+    ('2000', '2000'),
+    ('2500', '2500'),
+    ('3150', '3150'),
+)
 
 class Cable(models.Model):
     material = models.CharField(max_length=6, choices=CABLE_TYPE_CHOICES, default='Cu')  # materiał Cu Al
@@ -113,7 +130,19 @@ class ProtectionDevices(models.Model):
     def __str__(self):
         return f"{self.get_type_display()}/{self.get_current_display()}A"
 
+class Transformer(models.Model):
+    power = models.IntegerField(choices=POWER_TRAFO_CHOICES, default=630)
+    load_loss = models.DecimalField(max_digits=5, decimal_places=4, null=True, blank=True) #straty ociążeniowe
+    no_load_loss = models.DecimalField(max_digits=5, decimal_places=4, null=True, blank=True) #straty jałowe
+    reactance = models.DecimalField(max_digits=5, decimal_places=4, null=True, blank=True)
+    resistance = models.DecimalField(max_digits=5, decimal_places=4, null=True, blank=True)
+    device = models.ForeignKey(ProtectionDevices, on_delete=models.SET_NULL, null=True, blank=True, related_name="transformers")
+
+    def __str__(self):
+        return f"Trafo:{self.power}A"
+
 class CalculationResult(models.Model):
+    position = models.IntegerField()
     cir_number = models.CharField(max_length=12)
     cir_name = models.CharField(max_length=64)
     cir_voltage = models.DecimalField(max_digits=4, decimal_places=2)
@@ -131,7 +160,7 @@ class CalculationResult(models.Model):
     cab_kc_factor = models.DecimalField(max_digits=3, decimal_places=2)
     cab_i_z = models.DecimalField(max_digits=4, decimal_places=1)
     dev_type = models.CharField(max_length=12)
-    dev_current = models.IntegerField()
+    dev_current = models.IntegerField(default=2)
     dev_kr_factor = models.DecimalField(max_digits=3, decimal_places=2)
     dev_i_r = models.DecimalField(max_digits=6, decimal_places=2)
     dev_k2_factor = models.DecimalField(max_digits=5, decimal_places=2)

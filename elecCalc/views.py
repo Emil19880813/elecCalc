@@ -2,6 +2,9 @@
 from __future__ import unicode_literals
 import math, csv
 
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, JsonResponse
 from django.views import View
 from django.shortcuts import render, redirect
@@ -9,7 +12,7 @@ from django import forms
 from django.http import HttpRequest
 
 # Create your views here.
-from elecCalc.forms import CableForm, ProtectionDevicesForm, CableSelectForm
+from elecCalc.forms import CableForm, ProtectionDevicesForm, CableSelectForm, LoginForm, RegisterForm
 from elecCalc.models import Cable, ProtectionDevices, CalculationResult
 
 
@@ -35,11 +38,6 @@ class Choices:
     )
 
 class MainPage(View):
-    next_position = 1
-
-    def __init__(self):
-        self.position = self.next_position
-        MainPage.next_position += 1
 
     def get(self, request):
 
@@ -58,7 +56,7 @@ class MainPage(View):
                                                           'times_off': times_off, 'k2_factors': k2_factors})
 
     def post(self, request):
-
+        position = int(CalculationResult.objects.all().count()) + 1
         voltages = [voltage[1] for voltage in Choices.voltage_choices]
         materials = [cable for cable in Cable.objects.all().distinct('material')]
         insulations = [cable for cable in Cable.objects.all().distinct('insulation')]
@@ -106,7 +104,7 @@ class MainPage(View):
                     56 * float(cable_cross_section) * pow(voltage * 1000, 2)), 2)
             first_condition = bool(i_z >= i_r >= i_b)
 
-        CalculationResult.objects.create(position=self.position, cir_number=circuit_number, cir_name=receiver_name, cir_voltage=voltage, cir_power=power, cir_cos_fi=power_factor, cir_current=i_b,
+        CalculationResult.objects.create(position=position, cir_number=circuit_number, cir_name=receiver_name, cir_voltage=voltage, cir_power=power, cir_cos_fi=power_factor, cir_current=i_b,
                                                   cab_amount=amount, core_amount=core, cab_routing=cable_routing, cab_insulation=insulation, cab_material=material,
                                                   cab_cable_cross_section=float(cable_cross_section), cab_length=length, cab_i_dd=i_dd, cab_kc_factor=layer_factor,
                                                   cab_i_z=i_z, dev_type=device_type, dev_current=current, dev_kr_factor=kr_factor, dev_i_r=i_r,
@@ -123,25 +121,29 @@ class MainPage(View):
                                                       'second_condition': second_condition})
 
 
-class CableListView(View):
+class CableListView(LoginRequiredMixin, View):
     def get(self, request):
-        results = CalculationResult.objects.all()
+        results = CalculationResult.objects.all().order_by('position')
         return render(request, 'cable_list.html', context={'results': results})
 
-class PositionChange(View):
+
+class PositionChange(LoginRequiredMixin, View):
     def post(self, request):
         pos_nr = request.POST.get('pos_nr')
         if pos_nr:
-            result = CalculationResult.objects.get(pk=int(pos_nr))
-            next_result = CalculationResult.objects.get(pk=(int(pos_nr) + 1))
-            result.position += 1
-            result.save()
-            next_result -= 1
-            next_result.save()
-            return JsonResponse({'status': 'ok'})
+            result = CalculationResult.objects.get(position=int(pos_nr))
+            if CalculationResult.objects.filter(position=(int(pos_nr) + 1)).exists():
+                next_result = CalculationResult.objects.get(position=(int(pos_nr) + 1))
+                result.position = int(result.position)
+                next_result.position = int(next_result.position)
+                result.position += 1
+                result.save()
+                next_result.position -= 1
+                next_result.save()
+                return JsonResponse({'status': 'ok'})
+        return JsonResponse({'status': 'bad'})
 
-
-class CableIddView(View):
+class CableIddView(LoginRequiredMixin, View):
     def get(self, request):
         cables = Cable.objects.all()
         cable_select_form = CableSelectForm()
@@ -160,23 +162,21 @@ class CableIddView(View):
             return render(request, 'display_idd.html', context={'cables': cables, 'cable_select_form': cable_select_form, 'result': result})
 
 
-
-
-
-
 #TODO: wyświetlanie danych
-class DisplayCableView(View):
+class DisplayCableView(LoginRequiredMixin, View):
     def get(self, request):
         cables = Cable.objects.all()
         return render(request, 'display_cable.html', context={'cables': cables})
+
 
 class DisplayDevicesView(View):
     def get(self, request):
         devices = ProtectionDevices.objects.all()
         return render(request, 'display_device.html', context={'devices': devices})
 
+
 #TODO: edit data
-class EditCableView(View):
+class EditCableView(LoginRequiredMixin, View):
     def get(self, request, cable_id):
         cable = Cable.objects.get(pk=cable_id)
         cable_form = CableForm(instance=cable)
@@ -188,7 +188,8 @@ class EditCableView(View):
             cable_form.save()
             return redirect('elecCalc:display-cable')
 
-class EditDeviceView(View):
+
+class EditDeviceView(LoginRequiredMixin, View):
     def get(self, request, device_id):
         device = ProtectionDevices.objects.get(pk=device_id)
         device_form = ProtectionDevicesForm(instance=device)
@@ -202,24 +203,26 @@ class EditDeviceView(View):
 
 
 #TODO: remove data
-class DeleteCableView(View):
+class DeleteCableView(LoginRequiredMixin, View):
     def get(self, request, cable_id):
         Cable.objects.get(pk=cable_id).delete()
         return redirect('elecCalc:display-cable')
 
-class DeleteDeviceView(View):
+
+class DeleteDeviceView(LoginRequiredMixin, View):
     def get(self, request, device_id):
         ProtectionDevices.objects.get(pk=device_id).delete()
         return redirect('elecCalc:display-device')
 
-class DeleteResultView(View):
+
+class DeleteResultView(LoginRequiredMixin, View):
     def get(self, request, result_id):
         CalculationResult.objects.get(pk=result_id).delete()
         return redirect('elecCalc:cable-list')
 
 
 #TODO: add data
-class AddCableView(View):
+class AddCableView(LoginRequiredMixin, View):
     def get(self, request):
         cable_form = CableForm()
         return render(request, "add_cable.html", context={"form": cable_form})
@@ -230,7 +233,8 @@ class AddCableView(View):
             cable_form.save()
         return redirect('elecCalc:display-cable')
 
-class AddDeviceView(View):
+
+class AddDeviceView(LoginRequiredMixin, View):
     def get(self, request):
         device_form = ProtectionDevicesForm()
         return render(request, "add_device.html", context={"form": device_form})
@@ -242,6 +246,44 @@ class AddDeviceView(View):
         return redirect('elecCalc:display-device')
 
 
+class LoginView(View):
+    def get(self, request):
+        login_form = LoginForm()
+        return render(request, "account/login.html", context={"form": login_form})
+    def post(self, request):
+        login_form = LoginForm(request.POST)
+        if login_form.is_valid():
+            data = login_form.cleaned_data
+            user = authenticate(username=data['username'], password=data['password'])
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return redirect('elecCalc:main_page')
+                else:
+                    return HttpResponse('Konto jest zablokowane')
+            else:
+                return HttpResponse('Nieprawidłowe dane logowania')
+        return render(request, "account/login.html", context={"form": login_form})
+
+class LogoutView(View):
+    def get(self, request):
+        logout(request)
+        return redirect('elecCalc:login')
+
+class RegisterView(View):
+    def get(self, request):
+        form = RegisterForm()
+        return render(request, 'account/register.html', context={'form': form})
+    def post(self, request):
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            new_user = form.save(commit=False)
+            new_user.set_password(form.cleaned_data.get('password'))
+            new_user.save()
+            return render(request, 'account/register_done.html', context={'new_user': new_user})
+        return render(request, 'account/register.html', context={'form': form})
+
+@login_required
 def export_to_csv(request):
     mod = CalculationResult._meta
     response = HttpResponse(content_type='text/csv')
@@ -256,3 +298,4 @@ def export_to_csv(request):
             data_row.append(value)
         writer.writerow(data_row)
     return response
+

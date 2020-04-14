@@ -43,3 +43,7 @@ body {
   border-width: 5px;
   border-color: white;
 }
+
+.full-width {
+  width:100%!important;
+}

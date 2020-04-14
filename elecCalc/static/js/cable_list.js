@@ -1,4 +1,9 @@
 $(function () {
+
+    $.ajaxSetup({
+        headers: { "X-CSRFToken": $.cookie("csrftoken") }
+    });
+
     var down = $(".arrow-down");
     var up = $(".arrow-up");
 
@@ -8,7 +13,7 @@ $(function () {
             tr = $(this).parent().parent().parent();
             $.post('/position/',
                 {
-                    pos_nr: tr.data('position')
+                    pos_nr: tr.data('id'),
 
                 }).done(function (data) {
                     if (data['status'] == 'ok')
@@ -16,6 +21,15 @@ $(function () {
                         var next_tr = tr.next();
                         var move = tr.detach();
                         move.insertAfter(next_tr);
+
+                        var td = $(this).parent().parent().next().html();
+                        var next_td = next_tr.parent().parent().next().html();
+                        td.html(function (i, next_td) {
+                            return next_td
+                        });
+                        next_td.html(function (i, td) {
+                            return td
+                        });
                     }
                 }
             );

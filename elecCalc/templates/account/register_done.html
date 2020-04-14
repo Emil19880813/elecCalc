@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Witaj {{ new_user.first_name }}!</h2>
+<p>Twoje konto zostało utworzone. Możesz się już
+    <a href="{% url 'elecCalc:login' %}">zalogować</a>
+</p>
+{% endblock content %}

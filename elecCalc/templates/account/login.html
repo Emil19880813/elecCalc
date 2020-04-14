@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+{% load crispy_forms_tags %}
+<div class="form-row justify-content-md-center mt-5">
+    <div class="col-md-3">
+        <h4 class="account-heading">Logowanie:</h4>
+        <form action="#" method="post">
+            {% csrf_token %}
+            <div class="form-group mb-2">
+                {{ form|crispy }}
+            </div>
+            <div class="form-group mt-4 mb-2">
+                <input class="btn btn-info block full-width" type="submit" value="Zaloguj">
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock content %}

@@ -2,7 +2,6 @@ from django.db import models
 
 # Create your models here.
 
-
 OVERLOAD_FACTOR_CHOICES = (
     ('1.2', '1.2'),
     ('1.45', '1.45'),

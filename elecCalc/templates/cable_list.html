@@ -3,6 +3,7 @@
 {% load static %}
 {% block content %}
 <script src="../static/js/cable_list.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <div class="table-responsive col-sm-12">
     <table class="table table-bordered">
         <thead>
@@ -38,10 +39,10 @@
         </thead>
         <tbody>
             {% for result in results %}
-                <tr class="cableList" data-id="{result.position}">
+                <tr class="cableList" data-id="{{ result.position }}">
                     <td class="border-0"><a href=""><img class="arrow-up" src="{% static "arrow-up.png" %}" width="20" height="20" alt="Sortuj"></a></td>
                     <td class="border-top-0 border-bottom-0 border-left-0"><a href=""><img class="arrow-down" src="{% static "arrow-down.png" %}" width="20" height="20" alt="Sortuj"></a></td>
-                    <td>{{ result.position }}</td>
+                    <td data-position="{{ result.position }}">{{ result.position }}</td>
                     <td>{{ result.cir_number }}</td>
                     <td>{{ result.cir_name }}</td>
                     <td>{{ result.cir_voltage }}</td>

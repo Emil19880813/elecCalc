@@ -3,7 +3,8 @@ from django.urls import path
 from elecCalc.views import DisplayCableView, DisplayDevicesView, \
     EditCableView, EditDeviceView, DeleteCableView, \
     DeleteDeviceView, AddCableView, AddDeviceView, \
-    MainPage, CableListView, CableIddView, export_to_csv, DeleteResultView, PositionChange
+    MainPage, CableListView, CableIddView, export_to_csv, DeleteResultView, PositionChange, LoginView, LogoutView, \
+    RegisterView
 
 app_name = 'elecCalc'
 
@@ -20,6 +21,9 @@ urlpatterns = [
     path('add-device/', AddDeviceView.as_view(), name='add-device'),
     path('cable-list/', CableListView.as_view(), name='cable-list'),
     path('display-idd/', CableIddView.as_view(), name='display-idd'),
-    path('/position/', PositionChange.as_view(), name='position'),
+    path('position/', PositionChange.as_view(), name='position'),
     path('export-to-csv/', export_to_csv, name='csv'),
+    path('account/register/', RegisterView.as_view(), name='register'),
+    path('account/login/', LoginView.as_view(), name='login'),
+    path('account/logout/', LogoutView.as_view(), name='logout'),
 ]
